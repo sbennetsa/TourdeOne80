@@ -28,11 +28,11 @@ export function useLeaderboard(challenge: Challenge) {
       setIsLoading(true)
       setError(null)
 
-      // Fetch sheets (riders sheet optional now)
+      // Fetch sheets (riders sheet not needed - names auto-detected from columns)
       const sheets = await fetchAllSheets(
         CONFIG.sheets.twentyPercent,
         CONFIG.sheets.tenPercent,
-        CONFIG.sheets.riders || ''
+        undefined
       )
 
       // Parse data

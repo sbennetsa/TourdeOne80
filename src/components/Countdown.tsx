@@ -41,9 +41,9 @@ export function Countdown({ raceState }: Props) {
   const routeInfo = stage ? `${stage.target_km}km · ${stage.elevation_m}m` : ''
 
   return (
-    <div className="flex gap-4 rounded-xl border-l-4 border-cyan bg-gradient-to-r from-panel2 to-panel p-6 shadow-lg">
+    <div className="flex justify-between items-center rounded-xl border-l-4 border-cyan bg-gradient-to-r from-panel2 to-panel p-6 shadow-lg">
       {/* Left: Kicker + Stage Info */}
-      <div className="flex flex-col justify-center text-left">
+      <div className="flex flex-col justify-center text-left flex-1">
         <p className="font-label text-xs font-bold uppercase text-faint">{kicker}</p>
         {stage && (
           <>

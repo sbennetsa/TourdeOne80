@@ -86,6 +86,7 @@ export function parseChallengePlannerTab(
     const tp = parseFloat(row[tpCol!] || "0")
     const notes = row[notesCol!]?.trim()
     const startStr = row[startCol!]?.trim()
+    const startDate = startStr ? parseDateTime(startStr) : undefined
 
     const stage: Stage = {
       number: stageNum,
@@ -97,7 +98,7 @@ export function parseChallengePlannerTab(
       zw_percent: zw,
       tp_percent: tp,
       notes,
-      start: startStr ? parseDateTime(startStr) : undefined,
+      start: startDate || undefined,
     }
 
     stages.push(stage)

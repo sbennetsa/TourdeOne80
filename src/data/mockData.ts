@@ -59,9 +59,9 @@ export const mockStages: Stage[] = [
 ]
 
 export const mockRiders: Rider[] = [
-  { name: "Kelvin", challenge: "20", isNew: false },
-  { name: "Rienzo", challenge: "20", isNew: true },
-  { name: "Alex", challenge: "20", isNew: false },
+  { name: "Kelvin", challenge: "20", isNew: false, isCombative: false },
+  { name: "Rienzo", challenge: "20", isNew: true, isCombative: false },
+  { name: "Alex", challenge: "20", isNew: false, isCombative: false },
 ]
 
 export const mockEntries: RiderEntry[] = [

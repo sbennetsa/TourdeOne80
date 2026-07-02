@@ -108,7 +108,7 @@ describe("getRaceState", () => {
     const now = stage1Start // exactly at stage 1 start
     const state = getRaceState(mockStages, now)
     // Should count down to stage 2 start
-    const expectedCountdown = Math.floor((getStageStart(mockStages[1]) - now) / 1000)
+    const expectedCountdown = Math.floor((getStageStart(mockStages[1]).getTime() - now.getTime()) / 1000)
     expect(state.countdown_seconds).toBe(expectedCountdown)
   })
 })

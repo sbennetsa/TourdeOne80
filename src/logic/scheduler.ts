@@ -77,10 +77,13 @@ export function getRaceState(allStages: Stage[], now: Date): RaceState {
   // Pre-tour: before first stage
   const firstStage = numericStages[0]
   if (!firstStage || now < getStageStart(firstStage)) {
+    const countdown = firstStage
+      ? Math.floor((getStageStart(firstStage).getTime() - now.getTime()) / 1000)
+      : 0
     return {
       currentStage: null,
       currentStageState: "upcoming",
-      countdown_seconds: Math.floor((getStageStart(firstStage) - now) / 1000),
+      countdown_seconds: countdown,
       next_stage: firstStage || null,
       closed_stages: [],
     }
@@ -122,7 +125,7 @@ export function getRaceState(allStages: Stage[], now: Date): RaceState {
   }
 
   const nextStart = nextStage ? getStageStart(nextStage) : lastStage ? getStageClose(lastStage, allStages) : new Date()
-  const countdown = Math.floor((nextStart - now) / 1000)
+  const countdown = Math.floor((nextStart.getTime() - now.getTime()) / 1000)
 
   return {
     currentStage,

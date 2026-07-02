@@ -21,9 +21,20 @@ export function Stats({ gcEntries, raceState, totalStages }: Props) {
   }, 0)
 
   // Everest equivalent (1 Everest = 8848m)
-  const everestEquivalent = gcEntries.reduce((sum, entry) => {
+  const totalElevationGained = gcEntries.reduce((sum, entry) => {
     return sum + entry.total_elevation_m
-  }, 0) / 8848
+  }, 0)
+  const everestEquivalent = totalElevationGained / 8848
+
+  // Handle empty state
+  if (riderCount === 0) {
+    return (
+      <div className="rounded-lg border-2 border-yellow-300 bg-yellow-50 p-6 text-center">
+        <p className="text-lg font-semibold text-yellow-900">No riders yet</p>
+        <p className="mt-2 text-sm text-yellow-700">Check back when riders join the challenge.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -83,12 +94,13 @@ function StatCard({
 }
 
 function Heatmap({ gcEntries, totalStages }: { gcEntries: GCEntry[]; totalStages: number }) {
-  // TODO: Build heatmap with Recharts
-  // For now, show placeholder
+  if (totalStages === 0) {
+    return <p className="text-gray-500">No stages scheduled yet</p>
+  }
 
   return (
     <div className="space-y-2">
-      {gcEntries.slice(0, 10).map(entry => (
+      {gcEntries.slice(0, 20).map(entry => (
         <div key={entry.riderName} className="flex items-center gap-3">
           <span className="w-32 truncate font-semibold text-gray-700">{entry.riderName}</span>
           <div className="flex-1 space-y-1">
@@ -106,16 +118,21 @@ function Heatmap({ gcEntries, totalStages }: { gcEntries: GCEntry[]; totalStages
           </div>
         </div>
       ))}
+      {gcEntries.length > 20 && (
+        <p className="text-xs text-gray-500">
+          +{gcEntries.length - 20} more riders...
+        </p>
+      )}
     </div>
   )
 }
 
 function ProgressBars({ gcEntries }: { gcEntries: GCEntry[] }) {
-  const maxElevation = Math.max(...gcEntries.map(e => e.total_elevation_m))
+  const maxElevation = Math.max(...gcEntries.map(e => e.total_elevation_m), 1) // Avoid divide by zero
 
   return (
     <div className="space-y-4">
-      {gcEntries.slice(0, 10).map(entry => (
+      {gcEntries.slice(0, 20).map(entry => (
         <div key={entry.riderName}>
           <div className="mb-1 flex justify-between">
             <span className="text-sm font-semibold text-gray-700">{entry.riderName}</span>
@@ -127,12 +144,17 @@ function ProgressBars({ gcEntries }: { gcEntries: GCEntry[] }) {
             <div
               className="h-full rounded-full bg-gradient-to-r from-yellow-400 via-orange-400 to-red-500"
               style={{
-                width: `${(entry.total_elevation_m / maxElevation) * 100}%`,
+                width: `${maxElevation > 0 ? (entry.total_elevation_m / maxElevation) * 100 : 0}%`,
               }}
             />
           </div>
         </div>
       ))}
+      {gcEntries.length > 20 && (
+        <p className="text-xs text-gray-500">
+          +{gcEntries.length - 20} more riders...
+        </p>
+      )}
     </div>
   )
 }

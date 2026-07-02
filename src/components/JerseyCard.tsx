@@ -27,9 +27,15 @@ export function JerseyCard({ type, holder }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-gray-600">{config.emoji} {config.label}</p>
-          <p className="text-2xl font-bold text-gray-900">{holder.riderName}</p>
-          <p className="text-lg text-gray-700">{holder.value}</p>
-          {holder.gap && <p className="text-sm text-gray-500">{holder.gap}</p>}
+          {holder && holder.riderName ? (
+            <>
+              <p className="text-2xl font-bold text-gray-900">{holder.riderName}</p>
+              <p className="text-lg text-gray-700">{holder.value}</p>
+              {holder.gap && <p className="text-sm text-gray-500">{holder.gap}</p>}
+            </>
+          ) : (
+            <p className="text-lg italic text-gray-500">TBA</p>
+          )}
         </div>
       </div>
     </div>

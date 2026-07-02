@@ -64,13 +64,21 @@ export function Leaderboard({ challenge }: Props) {
       {/* Jersey Cards */}
       {data && (
         <>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-            <JerseyCard type="yellow" holder={data.jerseys.yellow} />
-            <JerseyCard type="green" holder={data.jerseys.green} />
-            <JerseyCard type="polka" holder={data.jerseys.polka} />
-            <JerseyCard type="white" holder={data.jerseys.white} />
-            <JerseyCard type="combative" holder={data.jerseys.combative} />
-          </div>
+          {data.race_state.currentStageState === 'upcoming' && !data.race_state.currentStage ? (
+            <div className="rounded-lg border-2 border-blue-300 bg-blue-50 p-6">
+              <p className="text-center text-lg font-semibold text-blue-900">
+                Tour hasn't started yet. Check back at the opening ceremony!
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+              <JerseyCard type="yellow" holder={data.jerseys.yellow} />
+              <JerseyCard type="green" holder={data.jerseys.green} />
+              <JerseyCard type="polka" holder={data.jerseys.polka} />
+              <JerseyCard type="white" holder={data.jerseys.white} />
+              <JerseyCard type="combative" holder={data.jerseys.combative} />
+            </div>
+          )}
 
           {/* Race-day panel: Countdown + Pen */}
           <Countdown raceState={data.race_state} />
@@ -89,7 +97,11 @@ export function Leaderboard({ challenge }: Props) {
             <h2 className="mb-4 text-xl font-bold text-gray-900">
               General Classification — {challenge}% Challenge
             </h2>
-            <GCTable entries={data.gc_entries} />
+            {data.race_state.closed_stages.length === 0 && data.race_state.currentStageState === 'upcoming' ? (
+              <p className="text-gray-600">Standings will appear after the first stage closes.</p>
+            ) : (
+              <GCTable entries={data.gc_entries} />
+            )}
           </div>
         </>
       )}

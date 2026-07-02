@@ -49,6 +49,17 @@ export function Countdown({ raceState }: Props) {
       )
     }
 
+    if (raceState.currentStageState === 'upcoming' && !raceState.currentStage) {
+      return (
+        <div className="text-center">
+          <p className="mb-2 text-sm font-semibold text-gray-600 uppercase">Tour starts in</p>
+          <p className="font-mono text-5xl font-bold text-gray-900">{formatCountdown(ticker)}</p>
+          <p className="mt-4 text-lg font-semibold text-gray-900">{formatStageInfo()}</p>
+          <p className="mt-1 text-sm text-gray-600">{formatRoute()}</p>
+        </div>
+      )
+    }
+
     return (
       <div className="text-center">
         <p className="mb-2 text-sm font-semibold text-gray-600 uppercase">Next stage in</p>

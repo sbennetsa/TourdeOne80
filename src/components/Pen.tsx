@@ -1,11 +1,5 @@
-/**
- * M3: The Pen
- * While a stage is live, show riders yet to post a time (in the pen)
- * Riders move to result list as times arrive; left in pen at close = misses
- */
-
 import React from 'react'
-import { RiderEntry, Stage, RaceState } from '../types'
+import { RiderEntry, RaceState } from '../types'
 
 interface Props {
   raceState: RaceState
@@ -19,8 +13,8 @@ export function Pen({ raceState, allRiders, stageEntries }: Props) {
 
   if (!isLive || !currentStage) {
     return (
-      <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-4">
-        <p className="text-sm text-gray-600">Pen closed (stage not live)</p>
+      <div className="rounded-lg border-l-4 border-faint border-line bg-panel p-4">
+        <p className="text-sm text-faint">Pen closed (stage not live)</p>
       </div>
     )
   }
@@ -41,21 +35,21 @@ export function Pen({ raceState, allRiders, stageEntries }: Props) {
     .sort((a, b) => (a.time_seconds || 0) - (b.time_seconds || 0))
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* The Pen */}
-      <div className="rounded-lg border-2 border-orange-300 bg-orange-50 p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">In the pen: {inPen.length} riders</h3>
-          <span className="text-sm text-gray-600">Stage {currentStage.number} live</span>
+      <div className="rounded-lg border-2 border-jersey-yellow/40 bg-panel p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="font-body font-bold text-cream">In the pen: {inPen.length} riders</h3>
+          <span className="font-label text-xs font-bold uppercase text-faint">Stage {currentStage.number} live</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {inPen.length === 0 ? (
-            <p className="text-sm text-gray-600">All riders posted! 🎉</p>
+            <p className="text-sm text-jersey-green">All riders posted! 🎉</p>
           ) : (
             inPen.map(rider => (
               <span
                 key={rider}
-                className="inline-block rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-900 shadow"
+                className="inline-block rounded-full bg-panel2 px-3 py-1 font-label text-xs font-bold uppercase text-cream"
               >
                 {rider}
               </span>
@@ -66,15 +60,15 @@ export function Pen({ raceState, allRiders, stageEntries }: Props) {
 
       {/* Today's Results */}
       {results.length > 0 && (
-        <div className="rounded-lg border-2 border-green-300 bg-green-50 p-4">
-          <h3 className="mb-3 font-semibold text-gray-900">Today's results</h3>
+        <div className="rounded-lg border border-line bg-panel2 p-4">
+          <h3 className="mb-3 font-body font-bold text-cream">Today's results</h3>
           <div className="space-y-2">
             {results.map((entry, i) => (
-              <div key={entry.riderName} className="flex items-center justify-between rounded bg-white p-2">
-                <span className="font-semibold text-gray-900">
+              <div key={entry.riderName} className="flex items-center justify-between rounded px-2 py-1">
+                <span className="font-body font-bold text-cream">
                   {i + 1}. {entry.riderName}
                 </span>
-                <span className="font-mono text-sm text-gray-700">
+                <span className="font-body text-sm tabular-nums text-muted">
                   {formatTime(entry.time_seconds || 0)}
                 </span>
               </div>

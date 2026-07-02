@@ -3,34 +3,23 @@
  * Jersey cards + GC table + race-day panel (countdown + pen)
  */
 
-import { useState } from 'react'
 import { Challenge } from '../types'
 import { JerseyCard } from '../components/JerseyCard'
 import { GCTable } from '../components/GCTable'
 import { Countdown } from '../components/Countdown'
 import { Pen } from '../components/Pen'
-import { SyncBadge } from '../components/SyncBadge'
-import { ChallengeSwitcher } from '../components/ChallengeSwitcher'
 import { useLeaderboard } from '../hooks'
 
-export function Leaderboard() {
-  const [challenge, setChallenge] = useState<Challenge>('20')
+interface Props {
+  challenge: Challenge
+}
+
+export function Leaderboard({ challenge }: Props) {
   const { data, error, isLoading, lastSynced, sync, validationIssues } =
     useLeaderboard(challenge)
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tour de ONE80</h1>
-          <p className="text-gray-600">Live Leaderboard & Stats</p>
-        </div>
-        <SyncBadge lastSynced={lastSynced} onRefresh={sync} isLoading={isLoading} />
-      </div>
-
-      {/* Challenge Switcher */}
-      <ChallengeSwitcher selected={challenge} onChange={setChallenge} />
 
       {/* Error Alert */}
       {error && (

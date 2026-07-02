@@ -21,7 +21,7 @@ export function Landing() {
   const jerseyCount = 5
 
   return (
-    <div className="bg-ink text-cream">
+    <div className="bg-ink text-cream flex flex-col min-h-screen">
       {/* Background glow */}
       <div
         className="pointer-events-none fixed inset-0"
@@ -32,7 +32,7 @@ export function Landing() {
       />
 
       {/* Hero Section */}
-      <div className="relative flex min-h-screen flex-col items-center justify-center px-10">
+      <div className="relative flex flex-1 flex-col items-center justify-center px-10">
         <div className="mx-auto max-w-[1240px] text-center">
           {/* Kicker */}
           <p
@@ -67,21 +67,13 @@ export function Landing() {
             TrainingPeaks grand tour.
           </p>
 
-          {/* CTAs */}
-          <div className="mt-8 flex gap-3 justify-center">
-            <button
-              onClick={() => navigate('/leaderboard?c=20')}
-              className="rounded-full bg-brand px-7 py-3.5 font-label text-[13px] font-bold uppercase tracking-[1.5px] text-white transition-all hover:bg-blue-600"
-            >
-              Enter The Tour
-            </button>
-            <button
-              onClick={() => navigate('/leaderboard?c=20')}
-              className="rounded-full border border-[#2b376e] px-7 py-3.5 font-label text-[13px] font-bold uppercase tracking-[1.5px] text-cream transition-colors hover:border-cyan hover:text-cyan"
-            >
-              View Leaderboard
-            </button>
-          </div>
+          {/* CTA */}
+          <button
+            onClick={() => navigate('/leaderboard?c=20')}
+            className="mt-8 rounded-full bg-brand px-7 py-3.5 font-label text-[13px] font-bold uppercase tracking-[1.5px] text-white transition-all hover:bg-blue-600"
+          >
+            Enter The Tour
+          </button>
         </div>
       </div>
 

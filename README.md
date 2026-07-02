@@ -23,20 +23,33 @@ cd TourdeOne80
 
 # Configure
 # Edit src/config.ts with your Google Sheet URLs and timezone
-
-# Start dev server in Docker
-make dev
-# Open http://localhost:5173
 ```
 
-**Available commands:**
+**Windows (PowerShell):**
+```powershell
+.\dev.ps1       # Start dev server (http://localhost:5173)
+.\build.ps1     # Build production bundle
+.\test.ps1      # Run unit tests
+.\stop.ps1      # Stop containers
+.\clean.ps1     # Remove containers and volumes
+```
+
+**Mac/Linux (Makefile):**
 ```bash
-make dev       # Start dev server (http://localhost:5173)
-make build     # Build production bundle
-make test      # Run unit tests
-make logs      # Show live logs
-make stop      # Stop containers
-make clean     # Remove containers and volumes
+make dev        # Start dev server (http://localhost:5173)
+make build      # Build production bundle
+make test       # Run unit tests
+make stop       # Stop containers
+make clean      # Remove containers and volumes
+```
+
+**Or use docker-compose directly:**
+```bash
+docker-compose up app              # Dev server
+docker-compose run --rm build      # Production build
+docker-compose run --rm test       # Run tests
+docker-compose down                # Stop containers
+docker-compose down -v             # Remove everything
 ```
 
 ### Build & Deploy

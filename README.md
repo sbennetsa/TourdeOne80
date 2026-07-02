@@ -52,12 +52,24 @@ docker-compose down                # Stop containers
 docker-compose down -v             # Remove everything
 ```
 
-### Build & Deploy
+### Production Deployment
+
+**Local + Cloudflare Tunnel (Recommended for on-premise)**
+
+```powershell
+.\prod.ps1
+# Starts production server on http://localhost:3000
+# Then use Cloudflare tunnel for public HTTPS access
+```
+
+See [DEPLOY.md](DEPLOY.md) for full Cloudflare tunnel setup.
+
+**Static Hosting (GitHub Pages, Netlify, Vercel)**
 
 ```bash
 make build
 # Docker builds to dist/
-# Deploy dist/ to GitHub Pages, Netlify, or Vercel
+# Deploy dist/ folder to your hosting service
 ```
 
 ### Without Docker (if you have Node.js 18+)

@@ -11,33 +11,49 @@ Supports two independent challenges: **10% Challenge** and **20% Challenge**.
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Docker & Docker Compose (no Node installation needed)
 - A published Google Sheet with the race data
 
-### Setup
+### Setup with Docker
 
 ```bash
 # Clone the repo
 git clone <repo-url>
-cd tour-one80
+cd TourdeOne80
 
-# Install dependencies
-npm install
+# Configure
+# Edit src/config.ts with your Google Sheet URLs and timezone
 
-# Configure (update .env or src/config.ts with Google Sheet URLs)
-cp .env.example .env
-# Edit .env with your sheet URLs and timezone
-
-# Start dev server
-npm run dev
+# Start dev server in Docker
+make dev
 # Open http://localhost:5173
+```
+
+**Available commands:**
+```bash
+make dev       # Start dev server (http://localhost:5173)
+make build     # Build production bundle
+make test      # Run unit tests
+make logs      # Show live logs
+make stop      # Stop containers
+make clean     # Remove containers and volumes
 ```
 
 ### Build & Deploy
 
 ```bash
-npm run build
+make build
+# Docker builds to dist/
 # Deploy dist/ to GitHub Pages, Netlify, or Vercel
+```
+
+### Without Docker (if you have Node.js 18+)
+
+```bash
+npm install
+npm run dev
+npm run build
+npm run test
 ```
 
 ## Project Structure

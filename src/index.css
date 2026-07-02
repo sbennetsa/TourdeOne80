@@ -2,52 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .jersey-card {
-    @apply rounded-lg border-2 p-4 shadow-md;
-  }
+/* Dark navy background + texture overlay */
+body {
+  @apply bg-ink text-cream;
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 9px);
+}
 
-  .jersey-card.yellow {
-    @apply border-[#F2C200] bg-yellow-50;
-  }
-
-  .jersey-card.green {
-    @apply border-[#1E9E56] bg-green-50;
-  }
-
-  .jersey-card.polka {
-    @apply border-[#D62828] bg-red-50;
-  }
-
-  .jersey-card.white {
-    @apply border-gray-300 bg-white;
-  }
-
-  .jersey-card.combative {
-    @apply border-[#6B1B47] bg-purple-50;
-  }
-
-  .gc-table {
-    @apply w-full border-collapse;
-  }
-
-  .gc-table th {
-    @apply border-b-2 border-gray-300 px-3 py-2 text-left font-semibold;
-  }
-
-  .gc-table td {
-    @apply border-b border-gray-200 px-3 py-2;
-  }
-
-  .gc-table tr:hover {
-    @apply bg-gray-50;
-  }
-
-  .dq-badge {
-    @apply inline-block rounded bg-red-200 px-2 py-1 text-xs font-bold text-red-900;
-  }
-
-  .countdown {
-    @apply font-mono text-3xl font-bold;
-  }
+html {
+  @apply scroll-smooth;
 }

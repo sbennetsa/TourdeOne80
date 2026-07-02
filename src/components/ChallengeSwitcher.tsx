@@ -1,9 +1,3 @@
-/**
- * M3: Challenge Switcher
- * Toggle between 10% and 20% challenges
- * Persists in URL as ?c=10 or ?c=20
- */
-
 import React, { useEffect } from 'react'
 
 interface Props {
@@ -30,18 +24,18 @@ export function ChallengeSwitcher({ selected, onChange }: Props) {
   }
 
   return (
-    <div className="flex gap-2 rounded-lg border border-gray-300 bg-white p-1">
+    <div className="flex gap-1 rounded-full border border-line bg-panel p-1">
       {(['10', '20'] as const).map(c => (
         <button
           key={c}
           onClick={() => handleChange(c)}
-          className={`rounded px-4 py-2 font-semibold transition-colors ${
+          className={`rounded-full px-3 py-1.5 font-label text-xs font-bold uppercase transition-colors ${
             selected === c
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+              ? 'bg-brand text-white'
+              : 'text-muted hover:text-cream'
           }`}
         >
-          {c}% Challenge
+          {c}%
         </button>
       ))}
     </div>

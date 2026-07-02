@@ -1,8 +1,3 @@
-/**
- * M3: Header component
- * Minimal app header (no duplication with page titles)
- */
-
 import { Challenge } from '../types'
 import { ChallengeSwitcher } from './ChallengeSwitcher'
 import { SyncBadge } from './SyncBadge'
@@ -27,36 +22,45 @@ export function Header({
   isLoading,
 }: Props) {
   return (
-    <header className="border-b bg-white shadow-sm">
-      <div className="mx-auto max-w-7xl px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo + nav */}
-          <div className="flex items-center gap-6">
-            <h1 className="text-2xl font-bold text-gray-900">Tour de ONE80</h1>
-            <nav className="flex gap-4 border-l border-gray-200 pl-4">
-              <button
-                onClick={() => onPageChange('leaderboard')}
-                className={`text-sm font-semibold transition-colors ${
-                  currentPage === 'leaderboard'
-                    ? 'text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Leaderboard
-              </button>
-              <button
-                onClick={() => onPageChange('stats')}
-                className={`text-sm font-semibold transition-colors ${
-                  currentPage === 'stats' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Stats
-              </button>
-            </nav>
+    <header className="sticky top-0 z-40 border-b border-line bg-[rgba(9,16,42,0.92)] backdrop-blur-sm">
+      <div className="mx-auto max-w-[1180px] px-5 py-4">
+        <div className="flex items-center justify-between gap-6">
+          {/* Wordmark + subtitle */}
+          <div className="flex flex-col">
+            <h1 className="font-display text-[34px] leading-none">
+              TOUR DE <span className="text-cyan">ONE80</span>
+            </h1>
+            <p className="font-label text-xs uppercase tracking-wider text-muted">
+              Live Leaderboard & Stats • 4–26 Jul 2026
+            </p>
           </div>
 
+          {/* Nav pills */}
+          <nav className="flex gap-2 rounded-full bg-panel p-1">
+            <button
+              onClick={() => onPageChange('leaderboard')}
+              className={`rounded-full px-4 py-2 font-label text-xs font-bold uppercase transition-colors ${
+                currentPage === 'leaderboard'
+                  ? 'bg-brand text-white'
+                  : 'text-muted hover:text-cream'
+              }`}
+            >
+              Leaderboard
+            </button>
+            <button
+              onClick={() => onPageChange('stats')}
+              className={`rounded-full px-4 py-2 font-label text-xs font-bold uppercase transition-colors ${
+                currentPage === 'stats'
+                  ? 'bg-brand text-white'
+                  : 'text-muted hover:text-cream'
+              }`}
+            >
+              Stats
+            </button>
+          </nav>
+
           {/* Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <ChallengeSwitcher selected={challenge} onChange={onChallengeChange} />
             <SyncBadge lastSynced={lastSynced} onRefresh={onRefresh} isLoading={isLoading} />
           </div>

@@ -19,6 +19,8 @@ export interface Stage {
   tp_percent: number  // Gradient % for TP Virtual
   notes?: string
   start?: Date       // Optional per-stage roll-out time (else use global DAILY_START_TIME)
+  zwift_route?: string  // Route name for Zwift
+  tp_route?: string     // Route name for TP/Trainerroad
 }
 
 /** Rider metadata from Riders tab */

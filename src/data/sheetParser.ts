@@ -45,15 +45,17 @@ export function parseChallengePlannerTab(
     h => h.toLowerCase().includes("target") && h.toLowerCase().includes(challenge)
   )
   const profileCol = headers.find(h => h.toLowerCase().includes("profile"))
-  const zwCol = headers.find(h => h.toLowerCase().includes("zw"))
-  const tpCol = headers.find(h => h.toLowerCase().includes("tp"))
+  const zwCol = headers.find(h => h.toLowerCase().includes("zw") && !h.toLowerCase().includes("route"))
+  const tpCol = headers.find(h => h.toLowerCase().includes("tp") && !h.toLowerCase().includes("route"))
   const notesCol = headers.find(h => h.toLowerCase().includes("notes"))
   const startCol = headers.find(h => h.toLowerCase().includes("start"))
+  const zwiftRouteCol = headers.find(h => h.toLowerCase().includes("zwift route") || h.toLowerCase().includes("zw route"))
+  const tpRouteCol = headers.find(h => h.toLowerCase().includes("tp route") || h.toLowerCase().includes("trainerroad route"))
 
   // Identify rider columns (any header not in the reference list)
   const refCols = new Set([
     stageCol, dateCol, distanceCol, elevationCol, targetCol,
-    profileCol, zwCol, tpCol, notesCol, startCol,
+    profileCol, zwCol, tpCol, notesCol, startCol, zwiftRouteCol, tpRouteCol,
   ].filter(Boolean))
 
   const potentialRiderCols = headers.filter(h => !refCols.has(h) && h.trim())
@@ -87,6 +89,8 @@ export function parseChallengePlannerTab(
     const notes = row[notesCol!]?.trim()
     const startStr = row[startCol!]?.trim()
     const startDate = startStr ? parseDateTime(startStr) : undefined
+    const zwiftRoute = row[zwiftRouteCol!]?.trim()
+    const tpRoute = row[tpRouteCol!]?.trim()
 
     const stage: Stage = {
       number: stageNum,
@@ -99,6 +103,8 @@ export function parseChallengePlannerTab(
       tp_percent: tp,
       notes,
       start: startDate || undefined,
+      zwift_route: zwiftRoute || undefined,
+      tp_route: tpRoute || undefined,
     }
 
     stages.push(stage)

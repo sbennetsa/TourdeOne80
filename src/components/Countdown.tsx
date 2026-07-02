@@ -1,11 +1,5 @@
-/**
- * M3: Countdown timer
- * Live DD:HH:MM:SS ticker to next stage start
- */
-
 import React, { useEffect, useState } from 'react'
-import { Stage, RaceState, StageState } from '../types'
-import { formatCountdown } from '../logic/scheduler'
+import { RaceState } from '../types'
 
 interface Props {
   raceState: RaceState
@@ -21,58 +15,76 @@ export function Countdown({ raceState }: Props) {
     return () => clearInterval(interval)
   }, [])
 
-  const formatStageInfo = (): string => {
-    if (!raceState.next_stage) return 'Tour finished'
+  const formatDigits = (seconds: number): { days: string; hours: string; minutes: string; seconds: string } => {
+    const days = Math.floor(seconds / 86400)
+    const hours = Math.floor((seconds % 86400) / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
 
-    const stage = raceState.next_stage
-    const dateStr = stage.date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    })
-
-    return `Stage ${stage.number} • ${dateStr} • ${stage.profile}`
-  }
-
-  const formatRoute = (): string => {
-    if (!raceState.next_stage) return ''
-    const stage = raceState.next_stage
-    return `${stage.target_km}km / ${stage.elevation_m}m`
-  }
-
-  const renderState = (): React.ReactNode => {
-    if (raceState.currentStageState === 'finished') {
-      return (
-        <div className="text-center">
-          <p className="text-4xl font-bold text-green-600">Tour Finished!</p>
-          <p className="mt-2 text-lg text-gray-600">Final classification above</p>
-        </div>
-      )
+    return {
+      days: String(days).padStart(2, '0'),
+      hours: String(hours).padStart(2, '0'),
+      minutes: String(minutes).padStart(2, '0'),
+      seconds: String(secs).padStart(2, '0'),
     }
-
-    if (raceState.currentStageState === 'upcoming' && !raceState.currentStage) {
-      return (
-        <div className="text-center">
-          <p className="mb-2 text-sm font-semibold text-gray-600 uppercase">Tour starts in</p>
-          <p className="font-mono text-5xl font-bold text-gray-900">{formatCountdown(ticker)}</p>
-          <p className="mt-4 text-lg font-semibold text-gray-900">{formatStageInfo()}</p>
-          <p className="mt-1 text-sm text-gray-600">{formatRoute()}</p>
-        </div>
-      )
-    }
-
-    return (
-      <div className="text-center">
-        <p className="mb-2 text-sm font-semibold text-gray-600 uppercase">Next stage in</p>
-        <p className="font-mono text-5xl font-bold text-gray-900">{formatCountdown(ticker)}</p>
-        <p className="mt-4 text-lg font-semibold text-gray-900">{formatStageInfo()}</p>
-        <p className="mt-1 text-sm text-gray-600">{formatRoute()}</p>
-      </div>
-    )
   }
+
+  const digits = formatDigits(ticker)
+  const stage = raceState.next_stage
+  const isTourFinished = raceState.currentStageState === 'finished'
+  const isPreTour = raceState.currentStageState === 'upcoming' && !raceState.currentStage
+
+  const dateStr = stage?.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) || ''
+  const kicker = isTourFinished ? 'TOUR FINISHED' : isPreTour ? 'TOUR STARTS IN' : 'NEXT STAGE IN'
+  const stageInfo = isTourFinished ? '' : stage ? `Stage ${stage.number} · ${dateStr}` : ''
+  const profile = stage?.profile || ''
+  const routeInfo = stage ? `${stage.target_km}km · ${stage.elevation_m}m` : ''
 
   return (
-    <div className="rounded-lg border-2 border-gray-300 bg-white p-6 shadow-md">
-      {renderState()}
+    <div className="flex gap-4 rounded-xl border-l-4 border-cyan bg-gradient-to-r from-panel2 to-panel p-6 shadow-lg">
+      {/* Left: Kicker + Stage Info */}
+      <div className="flex flex-col justify-center text-left">
+        <p className="font-label text-xs font-bold uppercase text-faint">{kicker}</p>
+        {stage && (
+          <>
+            <p className="font-display text-[24px] leading-none text-cream">{stageInfo}</p>
+            <p className="mt-1 text-xs text-muted">
+              {profile} • {routeInfo}
+            </p>
+          </>
+        )}
+        {isTourFinished && <p className="font-display text-[24px] leading-none text-jersey-green">FINAL CLASS</p>}
+      </div>
+
+      {/* Center: Countdown Digits */}
+      {!isTourFinished && (
+        <div className="flex flex-col justify-center gap-0">
+          <div className="flex items-baseline gap-1">
+            <span className="font-display text-[44px] leading-none text-cyan">{digits.days}</span>
+            <span className="font-display text-[40px] leading-none text-faint">:</span>
+            <span className="font-display text-[44px] leading-none text-cyan">{digits.hours}</span>
+            <span className="font-display text-[40px] leading-none text-faint">:</span>
+            <span className="font-display text-[44px] leading-none text-cyan">{digits.minutes}</span>
+            <span className="font-display text-[40px] leading-none text-faint">:</span>
+            <span className="font-display text-[44px] leading-none text-cream">{digits.seconds}</span>
+          </div>
+          <div className="mt-1 flex gap-[22px] text-center text-[9px] font-label uppercase text-faint">
+            <span>Days</span>
+            <span className="-ml-3">Hrs</span>
+            <span className="-ml-3">Min</span>
+            <span className="-ml-4">Sec</span>
+          </div>
+        </div>
+      )}
+
+      {/* Right: Routes (optional) */}
+      {stage && !isTourFinished && (
+        <div className="flex flex-col justify-center text-right">
+          <p className="font-label text-xs font-bold uppercase text-faint">Routes</p>
+          <p className="text-[13px] font-bold text-cream">Zwift · {stage.zwift_route ?? '—'}</p>
+          <p className="text-[13px] font-bold text-cream">TP · {stage.tp_route ?? '—'}</p>
+        </div>
+      )}
     </div>
   )
 }

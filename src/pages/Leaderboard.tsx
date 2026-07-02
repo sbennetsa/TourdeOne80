@@ -32,10 +32,57 @@ export function Leaderboard() {
       {(data10 || data20) && (
         <>
           {(data10?.race_state.currentStageState === 'upcoming' && !data10?.race_state.currentStage) ? (
-            <div className="rounded-lg border border-line border-l-4 border-l-cyan bg-panel p-6">
-              <p className="text-center text-lg font-semibold text-muted">
-                Tour hasn't started yet. Check back at the opening ceremony!
-              </p>
+            // Pre-tour: Show participant list
+            <div className="space-y-6">
+              <div className="rounded-lg border border-line border-l-4 border-l-cyan bg-panel p-6 text-center">
+                <p className="text-lg font-semibold text-muted">
+                  Tour starts July 4 at 09:00 UTC
+                </p>
+                <p className="mt-2 text-sm text-faint">
+                  {((data10?.gc_entries.length || 0) + (data20?.gc_entries.length || 0))} participants ready to race
+                </p>
+              </div>
+
+              {/* Participant Lists */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* 10% Challenge Participants */}
+                {data10 && data10.gc_entries.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="h-[28px] w-1 bg-jersey-yellow" />
+                      <h2 className="font-display text-[28px] leading-tight text-cream">10% Challenge</h2>
+                      <span className="font-label text-xs text-faint">({data10.gc_entries.length})</span>
+                    </div>
+                    <div className="rounded-xl border border-line bg-panel p-4 space-y-2">
+                      {data10.gc_entries.map((entry) => (
+                        <div key={entry.riderName} className="flex items-center justify-between py-2 px-3 rounded border border-line/30">
+                          <span className="font-body text-cream">{entry.riderName}</span>
+                          {entry.team && <span className="text-xs text-faint">{entry.team}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 20% Challenge Participants */}
+                {data20 && data20.gc_entries.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="h-[28px] w-1 bg-jersey-yellow" />
+                      <h2 className="font-display text-[28px] leading-tight text-cream">20% Challenge</h2>
+                      <span className="font-label text-xs text-faint">({data20.gc_entries.length})</span>
+                    </div>
+                    <div className="rounded-xl border border-line bg-panel p-4 space-y-2">
+                      {data20.gc_entries.map((entry) => (
+                        <div key={entry.riderName} className="flex items-center justify-between py-2 px-3 rounded border border-line/30">
+                          <span className="font-body text-cream">{entry.riderName}</span>
+                          {entry.team && <span className="text-xs text-faint">{entry.team}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">

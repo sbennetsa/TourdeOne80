@@ -1,10 +1,41 @@
 import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useLeaderboard } from '../hooks'
 
 export function Landing() {
   const navigate = useNavigate()
   const { data: data20 } = useLeaderboard('20')
   const { data: data10 } = useLeaderboard('10')
+  const [countdown, setCountdown] = useState({ days: '00', hours: '00', minutes: '00', seconds: '00' })
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date()
+      const tourStart = new Date('2026-07-04T09:00:00Z')
+      const diff = tourStart.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        setCountdown({ days: '00', hours: '00', minutes: '00', seconds: '00' })
+        return
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+      setCountdown({
+        days: String(days).padStart(2, '0'),
+        hours: String(hours).padStart(2, '0'),
+        minutes: String(minutes).padStart(2, '0'),
+        seconds: String(seconds).padStart(2, '0'),
+      })
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Compute stats from data (combine both challenges)
   const allRiders = new Set<string>()
@@ -66,6 +97,26 @@ export function Landing() {
             21 stages. 23 days. One peloton of friends chasing the yellow jersey across a Zwift &
             TrainingPeaks grand tour.
           </p>
+
+          {/* Countdown Timer */}
+          <div className="mx-auto mt-10 rounded-xl border border-line bg-panel p-6">
+            <p className="font-label text-xs font-bold uppercase tracking-[2px] text-faint mb-3">Tour Starts In</p>
+            <div className="flex items-baseline justify-center gap-2">
+              <span className="font-display text-[48px] leading-none text-cyan">{countdown.days}</span>
+              <span className="font-display text-[40px] leading-none text-faint">:</span>
+              <span className="font-display text-[48px] leading-none text-cyan">{countdown.hours}</span>
+              <span className="font-display text-[40px] leading-none text-faint">:</span>
+              <span className="font-display text-[48px] leading-none text-cyan">{countdown.minutes}</span>
+              <span className="font-display text-[40px] leading-none text-faint">:</span>
+              <span className="font-display text-[48px] leading-none text-cream">{countdown.seconds}</span>
+            </div>
+            <div className="mt-2 flex gap-8 justify-center text-center text-[9px] font-label uppercase text-faint">
+              <span>Days</span>
+              <span>Hours</span>
+              <span>Minutes</span>
+              <span>Seconds</span>
+            </div>
+          </div>
 
           {/* CTA */}
           <button

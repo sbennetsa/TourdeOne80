@@ -74,7 +74,7 @@ export function Landing() {
           </p>
 
           {/* Headline */}
-          <h1 className="font-display text-[160px] leading-[0.74] tracking-[3px]">
+          <h1 className="font-display leading-[0.74] tracking-[3px]" style={{ fontSize: 'clamp(72px, 22vw, 160px)' }}>
             <span className="text-cream">ONE</span><span className="text-cyan">80</span>
           </h1>
 

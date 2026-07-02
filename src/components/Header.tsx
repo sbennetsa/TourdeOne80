@@ -21,19 +21,19 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-[rgba(9,16,42,0.92)] backdrop-blur-sm">
-      <div className="mx-auto max-w-[1240px] px-10 py-4">
-        <div className="flex items-center justify-between gap-6">
+      <div className="mx-auto max-w-[1240px] px-4 md:px-10 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-2 md:gap-6">
           {/* Left: Logo + Wordmark */}
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-3 transition-opacity hover:opacity-80"
           >
-            <WheelLogo />
+            <div className="hidden md:block"><WheelLogo /></div>
             <div className="flex flex-col text-left">
-              <p className="font-label text-[9px] font-semibold uppercase tracking-[4px] text-muted">
+              <p className="font-label text-[7px] md:text-[9px] font-semibold uppercase tracking-[2px] md:tracking-[4px] text-muted">
                 Tour De
               </p>
-              <h1 className="font-display text-[30px] leading-none">
+              <h1 className="font-display text-[20px] md:text-[30px] leading-none">
                 <span className="text-cream">ONE</span><span className="text-cyan">80</span>
               </h1>
             </div>

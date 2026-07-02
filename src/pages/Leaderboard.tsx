@@ -3,42 +3,20 @@
  * Jersey cards + GC table + race-day panel (countdown + pen)
  */
 
-import React, { useEffect, useState } from 'react'
-import { Challenge, LeaderboardData, RiderEntry, Stage, Rider } from '../types'
+import { useState } from 'react'
+import { Challenge } from '../types'
 import { JerseyCard } from '../components/JerseyCard'
 import { GCTable } from '../components/GCTable'
 import { Countdown } from '../components/Countdown'
 import { Pen } from '../components/Pen'
 import { SyncBadge } from '../components/SyncBadge'
 import { ChallengeSwitcher } from '../components/ChallengeSwitcher'
-import { getJerseys } from '../logic/jerseys'
-import { buildLeaderboard } from '../logic/generalClassification'
+import { useLeaderboard } from '../hooks'
 
-interface Props {
-  stages: { "10": Stage[]; "20": Stage[] }
-  riders: Rider[]
-  entries: RiderEntry[]
-  lastSynced: Date
-  onRefresh: () => void
-  isLoading?: boolean
-}
-
-export function Leaderboard({
-  stages,
-  riders,
-  entries,
-  lastSynced,
-  onRefresh,
-  isLoading = false,
-}: Props) {
+export function Leaderboard() {
   const [challenge, setChallenge] = useState<Challenge>('20')
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null)
-
-  useEffect(() => {
-    // This would normally be computed from data
-    // For now, stub implementation
-    // TODO: Connect to actual data sync + race state computation
-  }, [challenge, stages, riders, entries])
+  const { data, error, isLoading, lastSynced, sync, validationIssues } =
+    useLeaderboard(challenge)
 
   return (
     <div className="space-y-6">
@@ -46,51 +24,95 @@ export function Leaderboard({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Tour de ONE80</h1>
-          <p className="text-gray-600">Live Leaderboard</p>
+          <p className="text-gray-600">Live Leaderboard & Stats</p>
         </div>
-        <SyncBadge lastSynced={lastSynced} onRefresh={onRefresh} isLoading={isLoading} />
+        <SyncBadge lastSynced={lastSynced} onRefresh={sync} isLoading={isLoading} />
       </div>
 
       {/* Challenge Switcher */}
       <ChallengeSwitcher selected={challenge} onChange={setChallenge} />
 
-      {/* TODO: Connect real leaderboard data and render */}
-      <div className="rounded-lg border-2 border-yellow-300 bg-yellow-50 p-4">
-        <p className="text-sm text-gray-600">M3 UI components ready • Awaiting data integration</p>
-      </div>
+      {/* Error Alert */}
+      {error && (
+        <div className="rounded-lg border-2 border-red-300 bg-red-50 p-4">
+          <p className="font-semibold text-red-900">Error loading leaderboard</p>
+          <p className="text-sm text-red-700">{error}</p>
+          <p className="mt-2 text-xs text-red-600">
+            Check console for details. Ensure Google Sheet URLs are published as CSV.
+          </p>
+        </div>
+      )}
 
-      {/* Jersey Cards (would be populated from leaderboardData) */}
-      {/* <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        {jerseys && (
-          <>
-            <JerseyCard type="yellow" holder={jerseys.yellow} />
-            <JerseyCard type="green" holder={jerseys.green} />
-            <JerseyCard type="polka" holder={jerseys.polka} />
-            <JerseyCard type="white" holder={jerseys.white} />
-            <JerseyCard type="combative" holder={jerseys.combative} />
-          </>
-        )}
-      </div> */}
+      {/* Validation Issues */}
+      {validationIssues.length > 0 && (
+        <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4">
+          <p className="font-semibold text-yellow-900">
+            {validationIssues.length} data validation issue(s)
+          </p>
+          <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-yellow-700">
+            {validationIssues.slice(0, 5).map((issue, i) => (
+              <li key={i}>
+                {issue.message}
+                {issue.location && <span className="text-xs"> ({issue.location})</span>}
+              </li>
+            ))}
+          </ul>
+          {validationIssues.length > 5 && (
+            <p className="mt-2 text-xs text-yellow-600">
+              +{validationIssues.length - 5} more...
+            </p>
+          )}
+        </div>
+      )}
 
-      {/* Race-day panel: Countdown + Pen */}
-      {/* <Countdown raceState={leaderboardData?.race_state} /> */}
+      {/* Loading State */}
+      {isLoading && !data && (
+        <div className="rounded-lg border-2 border-blue-300 bg-blue-50 p-4 text-center">
+          <p className="text-blue-900">Loading leaderboard...</p>
+        </div>
+      )}
 
-      {/* GC Table */}
-      {/* <GCTable entries={leaderboardData?.gc_entries || []} /> */}
+      {/* Jersey Cards */}
+      {data && (
+        <>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+            <JerseyCard type="yellow" holder={data.jerseys.yellow} />
+            <JerseyCard type="green" holder={data.jerseys.green} />
+            <JerseyCard type="polka" holder={data.jerseys.polka} />
+            <JerseyCard type="white" holder={data.jerseys.white} />
+            <JerseyCard type="combative" holder={data.jerseys.combative} />
+          </div>
 
-      {/* Instructions */}
-      <div className="space-y-2 rounded-lg border border-gray-300 bg-gray-50 p-4 text-sm">
-        <p>
-          <strong>Next steps:</strong>
-        </p>
-        <ul className="list-inside list-disc space-y-1 text-gray-600">
-          <li>M3 UI components complete (jersey cards, GC table, countdown, pen)</li>
-          <li>Create data hooks (useLeaderboard, useDataSync, useCurrentStage)</li>
-          <li>Integrate M1 parsing + M2 logic into React state</li>
-          <li>Build Stats page (heatmap, progress banner)</li>
-          <li>M5: Responsive polish + deploy</li>
-        </ul>
-      </div>
+          {/* Race-day panel: Countdown + Pen */}
+          <Countdown raceState={data.race_state} />
+
+          {/* The Pen (riders in the pen, today's results) */}
+          {data.race_state.currentStageState === 'live' && (
+            <Pen
+              raceState={data.race_state}
+              allRiders={data.gc_entries.map(e => e.riderName)}
+              stageEntries={[]} // TODO: Connect actual stage entries
+            />
+          )}
+
+          {/* GC Table */}
+          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <h2 className="mb-4 text-xl font-bold text-gray-900">
+              General Classification — {challenge}% Challenge
+            </h2>
+            <GCTable entries={data.gc_entries} />
+          </div>
+        </>
+      )}
+
+      {/* Empty State */}
+      {data && data.gc_entries.length === 0 && (
+        <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 text-center">
+          <p className="text-gray-600">
+            No riders found for {challenge}% challenge. Check your Google Sheet.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

@@ -8,8 +8,8 @@ export const CONFIG = {
   // Instructions: In Google Sheets, use File > Share > Publish to web
   // Select the tab and CSV format; copy the URL below
   sheets: {
-    twentyPercent: "",  // TODO: Add 20% Challenge sheet URL
-    tenPercent: "",     // TODO: Add 10% Challenge sheet URL
+    twentyPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/edit?gid=0#gid=0",  // TODO: Add 20% Challenge sheet URL
+    tenPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/edit?gid=1181518109#gid=1181518109",     // TODO: Add 10% Challenge sheet URL
     riders: "",         // TODO: Add Riders sheet URL
   },
 

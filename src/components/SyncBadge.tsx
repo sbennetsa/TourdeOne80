@@ -15,20 +15,20 @@ export function SyncBadge({ lastSynced, onRefresh, isLoading = false }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-full border border-line bg-panel px-4 py-2">
+    <div className="flex items-center gap-1 md:gap-3 rounded-full border border-line bg-panel px-2 md:px-4 py-1.5 md:py-2">
       {/* Blinking green dot */}
       <span className={`inline-block h-2 w-2 rounded-full bg-jersey-green ${isLoading ? '' : 'animate-blink'}`} />
 
-      {/* Status text */}
-      <span className="font-label text-xs uppercase text-muted">
-        Synced<span className="hidden sm:inline">: {formatTime(lastSynced)}</span>
+      {/* Status text - hidden on mobile */}
+      <span className="hidden md:inline font-label text-xs uppercase text-muted">
+        Synced: {formatTime(lastSynced)}
       </span>
 
       {/* Refresh button */}
       <button
         onClick={onRefresh}
         disabled={isLoading}
-        className="ml-2 rounded-full bg-brand px-3 py-1.5 font-label text-xs font-bold uppercase text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="rounded-full bg-brand px-2 md:px-3 py-1 md:py-1.5 font-label text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         <span className={isLoading ? 'inline-block animate-spin-700' : ''}>↻</span>
       </button>

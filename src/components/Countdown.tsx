@@ -41,9 +41,9 @@ export function Countdown({ raceState }: Props) {
   const routeInfo = stage ? `${stage.target_km}km · ${stage.elevation_m}m` : ''
 
   return (
-    <div className="flex justify-between items-center rounded-xl border-l-4 border-cyan bg-gradient-to-r from-panel2 to-panel p-6 shadow-lg">
+    <div className="grid grid-cols-3 items-center rounded-xl border-l-4 border-cyan bg-gradient-to-r from-panel2 to-panel p-6 shadow-lg">
       {/* Left: Kicker + Stage Info */}
-      <div className="flex flex-col justify-center text-left flex-1">
+      <div className="flex flex-col justify-center text-left">
         <p className="font-label text-xs font-bold uppercase text-faint">{kicker}</p>
         {stage && (
           <>
@@ -58,7 +58,7 @@ export function Countdown({ raceState }: Props) {
 
       {/* Center: Countdown Digits */}
       {!isTourFinished && (
-        <div className="flex flex-col justify-center gap-0">
+        <div className="flex flex-col justify-center items-center gap-0">
           <div className="flex items-baseline gap-1">
             <span className="font-display text-[44px] leading-none text-cyan">{digits.days}</span>
             <span className="font-display text-[40px] leading-none text-faint">:</span>

@@ -1,7 +1,24 @@
 import { useNavigate } from 'react-router-dom'
+import { useLeaderboard } from '../hooks'
 
 export function Landing() {
   const navigate = useNavigate()
+  const { data: data20 } = useLeaderboard('20')
+  const { data: data10 } = useLeaderboard('10')
+
+  // Compute stats from data (combine both challenges)
+  const allRiders = new Set<string>()
+  if (data20?.gc_entries) {
+    data20.gc_entries.forEach(e => allRiders.add(e.riderName))
+  }
+  if (data10?.gc_entries) {
+    data10.gc_entries.forEach(e => allRiders.add(e.riderName))
+  }
+
+  const totalStages = data20?.gc_entries[0]?.total_stages || data10?.gc_entries[0]?.total_stages || 21
+  const totalDays = 23 // Tour duration (fixed: 4-26 July = 23 days)
+  const riderCount = allRiders.size || 0
+  const jerseyCount = 5
 
   return (
     <div className="min-h-screen bg-ink text-cream">
@@ -15,24 +32,19 @@ export function Landing() {
       />
 
       {/* Content */}
-      <div className="relative flex min-h-screen flex-col items-center justify-center px-10 py-20">
-        <div className="max-w-[1240px] text-center">
+      <div className="relative px-10 py-[78px]">
+        <div className="mx-auto max-w-[1240px] text-center">
           {/* Kicker */}
-          <p className="font-label text-[17px] font-bold uppercase tracking-[9px] text-muted">
+          <p
+            className="font-label text-[17px] font-semibold uppercase text-[#8b98c4]"
+            style={{ letterSpacing: '9px', paddingLeft: '9px' }}
+          >
             TOUR · DE
           </p>
 
           {/* Headline */}
-          <h1
-            className="font-display text-[160px] leading-[0.74] tracking-[3px]"
-            style={{
-              background: 'linear-gradient(to right, #eef2fb 0%, #eef2fb 65%, #35c8f0 65%, #35c8f0 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            ONE80
+          <h1 className="font-display text-[160px] leading-[0.74] tracking-[3px]">
+            <span className="text-cream">ONE</span><span className="text-cyan">80</span>
           </h1>
 
           {/* Cyan gradient rule */}
@@ -45,7 +57,7 @@ export function Landing() {
           />
 
           {/* Strapline */}
-          <p className="font-label text-[14px] font-bold uppercase tracking-[8px] text-faint">
+          <p className="font-label text-[14px] font-semibold uppercase tracking-[8px] text-faint">
             VIRTUAL GRAND TOUR · 2026
           </p>
 
@@ -74,15 +86,15 @@ export function Landing() {
       </div>
 
       {/* Stat Strip */}
-      <div className="relative border-t border-b border-line">
-        <div className="mx-auto max-w-[1240px]">
-          <div className="grid grid-cols-4">
+      <div className="relative border-t border-b border-line bg-ink">
+        <div className="mx-auto max-w-[1240px] px-10">
+          <div className="grid grid-cols-4 w-full">
             {[
-              { value: '21', label: 'Stages' },
-              { value: '23', label: 'Days' },
-              { value: '7', label: 'Riders' },
-              { value: '5', label: 'Jerseys' },
-            ].map((stat, i) => (
+              { value: totalStages.toString(), label: 'Stages' },
+              { value: totalDays.toString(), label: 'Days' },
+              { value: riderCount.toString(), label: 'Riders' },
+              { value: jerseyCount.toString(), label: 'Jerseys' },
+            ].map((stat) => (
               <div
                 key={stat.label}
                 className={`border-r border-line py-6 px-4 text-center last:border-r-0`}

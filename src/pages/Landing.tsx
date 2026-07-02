@@ -21,7 +21,7 @@ export function Landing() {
   const jerseyCount = 5
 
   return (
-    <div className="min-h-screen bg-ink text-cream">
+    <div className="bg-ink text-cream">
       {/* Background glow */}
       <div
         className="pointer-events-none fixed inset-0"
@@ -31,12 +31,12 @@ export function Landing() {
         }}
       />
 
-      {/* Content */}
-      <div className="relative px-10 py-[78px]">
+      {/* Hero Section */}
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-10">
         <div className="mx-auto max-w-[1240px] text-center">
           {/* Kicker */}
           <p
-            className="font-label text-[17px] font-semibold uppercase text-[#8b98c4]"
+            className="font-label text-[17px] font-semibold uppercase text-[#8b98c4] mb-2"
             style={{ letterSpacing: '9px', paddingLeft: '9px' }}
           >
             TOUR · DE

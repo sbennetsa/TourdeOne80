@@ -85,13 +85,15 @@ export function Leaderboard() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-              <JerseyCard type="yellow" holder={data20?.jerseys.yellow} />
-              <JerseyCard type="green" holder={data20?.jerseys.green} />
-              <JerseyCard type="polka" holder={data20?.jerseys.polka} />
-              <JerseyCard type="white" holder={data20?.jerseys.white} />
-              <JerseyCard type="combative" holder={data20?.jerseys.combative} />
-            </div>
+            data20 && (
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+                <JerseyCard type="yellow" holder={data20.jerseys.yellow} />
+                <JerseyCard type="green" holder={data20.jerseys.green} />
+                <JerseyCard type="polka" holder={data20.jerseys.polka} />
+                <JerseyCard type="white" holder={data20.jerseys.white} />
+                <JerseyCard type="combative" holder={data20.jerseys.combative} />
+              </div>
+            )
           )}
 
           {/* Race-day panel: Countdown + Pen */}

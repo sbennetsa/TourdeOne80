@@ -50,7 +50,7 @@ export function parseChallengePlannerTab(
   const notesCol = headers.find(h => h.toLowerCase().includes("notes"))
   const startCol = headers.find(h => h.toLowerCase().includes("start"))
   const zwiftRouteCol = headers.find(h => h.toLowerCase().includes("zwift route") || h.toLowerCase().includes("zw route"))
-  const tpRouteCol = headers.find(h => h.toLowerCase().includes("tp route") || h.toLowerCase().includes("trainerroad route"))
+  const tpRouteCol = headers.find(h => h.toLowerCase().includes("tp virtual") || h.toLowerCase().includes("tp route") || h.toLowerCase().includes("trainerroad route"))
 
   // Identify rider columns (any header not in the reference list)
   const refCols = new Set([

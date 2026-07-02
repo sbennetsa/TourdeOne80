@@ -24,14 +24,14 @@ export function ChallengeSwitcher({ selected, onChange }: Props) {
   }
 
   return (
-    <div className="flex gap-1 rounded-full border border-line bg-panel p-1">
+    <div className="flex gap-1.5 rounded-full border-2 border-line bg-panel p-2">
       {(['10', '20'] as const).map(c => (
         <button
           key={c}
           onClick={() => handleChange(c)}
-          className={`rounded-full px-3 py-1.5 font-label text-xs font-bold uppercase transition-colors ${
+          className={`rounded-full px-4 py-2 font-label text-sm font-bold uppercase transition-colors ${
             selected === c
-              ? 'bg-brand text-white'
+              ? 'bg-brand text-white shadow-lg'
               : 'text-muted hover:text-cream'
           }`}
         >

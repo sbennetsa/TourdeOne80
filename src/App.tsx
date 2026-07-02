@@ -1,12 +1,14 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import { Challenge } from './types'
 import { Header } from './components/Header'
+import { Landing } from './pages/Landing'
 import { Leaderboard } from './pages/Leaderboard'
 import { Stats } from './pages/Stats'
 import { useLeaderboard } from './hooks'
 import './index.css'
 
-export default function App() {
+function LeaderboardApp() {
   const [challenge, setChallenge] = useState<Challenge>('20')
   const [currentPage, setCurrentPage] = useState<'leaderboard' | 'stats'>('leaderboard')
   const { data, error, isLoading, lastSynced, sync } = useLeaderboard(challenge)
@@ -14,7 +16,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-ink text-cream">
       {/* Top ribbon: 5 jersey color stripes */}
-      <div className="flex h-1.5 w-full gap-0">
+      <div className="flex h-[6px] w-full gap-0">
         <div className="flex-1 bg-jersey-yellow" />
         <div className="flex-1 bg-jersey-green" />
         <div className="flex-1 bg-jersey-polka" />
@@ -53,5 +55,14 @@ export default function App() {
         </p>
       </footer>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/leaderboard" element={<LeaderboardApp />} />
+    </Routes>
   )
 }

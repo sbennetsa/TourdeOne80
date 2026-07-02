@@ -4,13 +4,12 @@
  */
 
 export const CONFIG = {
-  // Google Sheets (published as CSV)
-  // Instructions: In Google Sheets, use File > Share > Publish to web
-  // Select the tab and CSV format; copy the URL below
+  // Google Sheets (CSV export URLs)
+  // Format: https://docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/export?gid={SHEET_ID}&format=csv
+  // Find SHEET_ID in sheet tab menu (right-click tab → more options)
   sheets: {
-    twentyPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/edit?gid=0#gid=0",  // TODO: Add 20% Challenge sheet URL
-    tenPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/edit?gid=1181518109#gid=1181518109",     // TODO: Add 10% Challenge sheet URL
-    riders: "",         // TODO: Add Riders sheet URL
+    twentyPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/export?gid=0&format=csv",
+    tenPercent: "https://docs.google.com/spreadsheets/d/1ixNfCDfS5CAzAcfyA53jParBlUuWhKlFHJfNoIcj5Gs/export?gid=1181518109&format=csv",
   },
 
   // Timing & timezone

@@ -4,11 +4,10 @@
  */
 
 import { useEffect, useState } from 'react'
-import { LeaderboardData, Challenge, ValidationIssue } from '../types'
+import { LeaderboardData, Challenge, ValidationIssue, Rider } from '../types'
 import { fetchAllSheets } from '../data/googleSheetClient'
 import {
   parseChallengePlannerTab,
-  parseRidersTab,
   parseRiderEntries,
 } from '../data/sheetParser'
 import { validateSheet } from '../data/validation'
@@ -29,11 +28,11 @@ export function useLeaderboard(challenge: Challenge) {
       setIsLoading(true)
       setError(null)
 
-      // Fetch sheets
+      // Fetch sheets (riders sheet optional now)
       const sheets = await fetchAllSheets(
         CONFIG.sheets.twentyPercent,
         CONFIG.sheets.tenPercent,
-        CONFIG.sheets.riders
+        CONFIG.sheets.riders || ''
       )
 
       // Parse data
@@ -41,7 +40,21 @@ export function useLeaderboard(challenge: Challenge) {
         parseChallengePlannerTab(sheets.twentyPercent, '20')
       const { stages: stages10, riderNames: riderNames10 } =
         parseChallengePlannerTab(sheets.tenPercent, '10')
-      const riders = parseRidersTab(sheets.riders)
+
+      // Create riders from column names (without requiring a separate Riders tab)
+      const createRidersFromNames = (names: string[], chal: Challenge): Rider[] => {
+        return names.map(name => ({
+          name,
+          challenge: chal,
+          isNew: false,
+          isCombative: false,
+        }))
+      }
+
+      const riders20 = createRidersFromNames(riderNames20, '20')
+      const riders10 = createRidersFromNames(riderNames10, '10')
+      const allRiders = [...riders20, ...riders10]
+
       const entries20 = parseRiderEntries(sheets.twentyPercent, '20', riderNames20)
       const entries10 = parseRiderEntries(sheets.tenPercent, '10', riderNames10)
 
@@ -49,7 +62,7 @@ export function useLeaderboard(challenge: Challenge) {
       const issues = validateSheet(
         stages10,
         stages20,
-        riders,
+        allRiders,
         [...entries10, ...entries20],
         riderNames10,
         riderNames20
@@ -59,7 +72,7 @@ export function useLeaderboard(challenge: Challenge) {
       // Compute leaderboard for selected challenge
       const stages = challenge === '20' ? stages20 : stages10
       const entries = challenge === '20' ? entries20 : entries10
-      const challengeRiders = riders.filter(r => r.challenge === challenge)
+      const challengeRiders = challenge === '20' ? riders20 : riders10
 
       const raceState = getRaceState(stages, new Date())
       const gcEntries = buildLeaderboard(

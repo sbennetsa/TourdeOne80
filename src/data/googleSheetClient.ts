@@ -25,12 +25,12 @@ export async function fetchGoogleSheet(sheetUrl: string): Promise<string> {
 export async function fetchAllSheets(
   twentyPercentUrl: string,
   tenPercentUrl: string,
-  ridersUrl: string
+  ridersUrl?: string
 ): Promise<{ twentyPercent: string; tenPercent: string; riders: string }> {
   const [twentyPercent, tenPercent, riders] = await Promise.all([
     fetchGoogleSheet(twentyPercentUrl),
     fetchGoogleSheet(tenPercentUrl),
-    fetchGoogleSheet(ridersUrl),
+    ridersUrl ? fetchGoogleSheet(ridersUrl).catch(() => '') : Promise.resolve(''),
   ])
 
   return { twentyPercent, tenPercent, riders }

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { Challenge } from './types'
 import { Header } from './components/Header'
 import { Landing } from './pages/Landing'
 import { Leaderboard } from './pages/Leaderboard'
@@ -9,9 +8,16 @@ import { useLeaderboard } from './hooks'
 import './index.css'
 
 function LeaderboardApp() {
-  const [challenge, setChallenge] = useState<Challenge>('20')
   const [currentPage, setCurrentPage] = useState<'leaderboard' | 'stats'>('leaderboard')
-  const { data, error, isLoading, lastSynced, sync } = useLeaderboard(challenge)
+  const { data: data10, lastSynced, sync, isLoading } = useLeaderboard('10')
+  const { data: data20 } = useLeaderboard('20')
+
+  // Combine entries from both challenges for stats
+  const combinedEntries = [
+    ...(data10?.gc_entries || []),
+    ...(data20?.gc_entries || []),
+  ]
+  const raceState = data20?.race_state || data10?.race_state
 
   return (
     <div className="min-h-screen bg-ink text-cream">
@@ -25,8 +31,6 @@ function LeaderboardApp() {
       </div>
 
       <Header
-        challenge={challenge}
-        onChallengeChange={setChallenge}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         lastSynced={lastSynced}
@@ -34,18 +38,11 @@ function LeaderboardApp() {
         isLoading={isLoading}
       />
 
-      <main className="mx-auto max-w-[1180px] px-5 py-8">
+      <main className="mx-auto max-w-[1240px] px-5 py-8">
         {currentPage === 'leaderboard' ? (
-          <Leaderboard challenge={challenge} />
+          <Leaderboard />
         ) : (
-          data && <Stats gcEntries={data.gc_entries} raceState={data.race_state} totalStages={data.gc_entries[0]?.total_stages || 21} />
-        )}
-
-        {error && (
-          <div className="mt-6 rounded-lg border-l-4 border-jersey-polka border-line bg-panel p-4">
-            <p className="font-semibold text-cream">Error loading data</p>
-            <p className="text-sm text-muted">{error}</p>
-          </div>
+          raceState && <Stats gcEntries={combinedEntries} raceState={raceState} totalStages={combinedEntries[0]?.total_stages || 21} />
         )}
       </main>
 

@@ -1,12 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { Challenge } from '../types'
-import { ChallengeSwitcher } from './ChallengeSwitcher'
 import { SyncBadge } from './SyncBadge'
 import { WheelLogo } from './WheelLogo'
 
 interface Props {
-  challenge: Challenge
-  onChallengeChange: (c: Challenge) => void
   currentPage: 'leaderboard' | 'stats'
   onPageChange: (page: 'leaderboard' | 'stats') => void
   lastSynced: Date
@@ -15,8 +11,6 @@ interface Props {
 }
 
 export function Header({
-  challenge,
-  onChallengeChange,
   currentPage,
   onPageChange,
   lastSynced,
@@ -69,11 +63,8 @@ export function Header({
             </button>
           </nav>
 
-          {/* Right: Controls */}
-          <div className="flex items-center gap-3">
-            <ChallengeSwitcher selected={challenge} onChange={onChallengeChange} />
-            <SyncBadge lastSynced={lastSynced} onRefresh={onRefresh} isLoading={isLoading} />
-          </div>
+          {/* Right: Sync badge */}
+          <SyncBadge lastSynced={lastSynced} onRefresh={onRefresh} isLoading={isLoading} />
         </div>
       </div>
     </header>

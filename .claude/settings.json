@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": ["Read", "Write", "Edit", "Bash(npm *)", "Bash(git *)"]
+  },
+  "includeGitInstructions": true,
+  "autoMemoryEnabled": true,
+  "autoMemoryDirectory": ".claude/memory"
+}

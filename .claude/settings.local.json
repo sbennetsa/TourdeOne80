@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(gh issue:*)",
+      "Bash(grep:*)",
+      "Bash(git log*)",
+      "Bash(git status*)",
+      "Bash(git commit*)",
+      "Bash(git add*)",
+      "Bash(git diff*)",
+      "WebFetch(domain:www.woolworths.co.za)",
+      "WebSearch"
+    ]
+  }
+}

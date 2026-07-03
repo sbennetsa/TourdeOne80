@@ -14,7 +14,7 @@ export const CONFIG = {
 
   // Timing & timezone
   TIMEZONE: "Africa/Johannesburg",  // South African Standard Time (SAST, UTC+2)
-  DAILY_START_TIME: "09:00",  // HH:MM format, daily stage start (SAST)
+  DAILY_START_TIME: "00:00",  // HH:MM format, daily stage start at midnight (SAST)
   SYNC_INTERVAL_MS: 60_000,   // Poll Google Sheet every 60 seconds
 
   // Tour dates

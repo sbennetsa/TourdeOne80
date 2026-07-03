@@ -1,27 +1,36 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useLeaderboard } from '../hooks'
+import { useServerTime, getServerTime } from '../hooks/useServerTime'
 
 export function Landing() {
   const navigate = useNavigate()
   const { data: data20 } = useLeaderboard('20')
   const { data: data10 } = useLeaderboard('10')
   const [countdown, setCountdown] = useState({ days: '00', hours: '00', minutes: '00', seconds: '00' })
+  useServerTime() // Sync with server time on mount
 
   useEffect(() => {
     const updateCountdown = () => {
-      // Get current time and calculate next midnight in SAST (UTC+2)
-      const now = new Date()
-      // Convert current UTC time to SAST by adding 2 hours
-      const nowSAST = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+      // Use server-synced time
+      const now = getServerTime()
 
-      // Calculate next midnight SAST
-      const nextMidnightSAST = new Date(nowSAST)
-      nextMidnightSAST.setHours(24, 0, 0, 0) // Set to next midnight
+      // Get current UTC components
+      const utcHours = now.getUTCHours()
+      const utcMinutes = now.getUTCMinutes()
+      const utcSeconds = now.getUTCSeconds()
 
-      // Convert back to UTC for calculation
-      const nextMidnightUTC = new Date(nextMidnightSAST.getTime() - 2 * 60 * 60 * 1000)
-      const diff = nextMidnightUTC.getTime() - now.getTime()
+      // Calculate current time in SAST
+      let sastHours = (utcHours + 2) % 24
+      const sastMinutes = utcMinutes
+      const sastSeconds = utcSeconds
+
+      // Calculate total seconds elapsed in the current SAST day
+      const secondsIntoSASTDay = sastHours * 3600 + sastMinutes * 60 + sastSeconds
+      const secondsPerDay = 24 * 3600
+      const secondsUntilMidnight = secondsPerDay - secondsIntoSASTDay
+
+      const diff = secondsUntilMidnight * 1000
 
       if (diff <= 0) {
         setCountdown({ days: '00', hours: '00', minutes: '00', seconds: '00' })

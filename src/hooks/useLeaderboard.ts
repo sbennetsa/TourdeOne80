@@ -15,6 +15,7 @@ import { getRaceState } from '../logic/scheduler'
 import { buildLeaderboard } from '../logic/generalClassification'
 import { getJerseys } from '../logic/jerseys'
 import { CONFIG } from '../config'
+import { useServerTime, getServerTime } from './useServerTime'
 
 export function useLeaderboard(challenge: Challenge) {
   const [data, setData] = useState<LeaderboardData | null>(null)
@@ -22,6 +23,7 @@ export function useLeaderboard(challenge: Challenge) {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [lastSynced, setLastSynced] = useState(new Date())
+  useServerTime() // Sync with server time on mount
 
   const sync = async () => {
     try {
@@ -74,7 +76,7 @@ export function useLeaderboard(challenge: Challenge) {
       const entries = challenge === '20' ? entries20 : entries10
       const challengeRiders = challenge === '20' ? riders20 : riders10
 
-      const raceState = getRaceState(stages, new Date())
+      const raceState = getRaceState(stages, getServerTime())
       const gcEntries = buildLeaderboard(
         challengeRiders,
         entries,

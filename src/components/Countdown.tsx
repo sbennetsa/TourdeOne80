@@ -8,6 +8,11 @@ interface Props {
 export function Countdown({ raceState }: Props) {
   const [ticker, setTicker] = useState(raceState.countdown_seconds)
 
+  // Re-sync ticker whenever fresh race state arrives (60s data poll)
+  useEffect(() => {
+    setTicker(raceState.countdown_seconds)
+  }, [raceState.countdown_seconds])
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTicker(t => Math.max(0, t - 1))

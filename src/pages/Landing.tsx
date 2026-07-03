@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useLeaderboard } from '../hooks'
+import { getNextMidnightSAST } from '../logic/scheduler'
 
 export function Landing() {
   const navigate = useNavigate()
@@ -10,18 +11,9 @@ export function Landing() {
 
   useEffect(() => {
     const updateCountdown = () => {
-      // Get current time and calculate next midnight in SAST (UTC+2)
       const now = new Date()
-      // Convert current UTC time to SAST by adding 2 hours
-      const nowSAST = new Date(now.getTime() + 2 * 60 * 60 * 1000)
-
-      // Calculate next midnight SAST
-      const nextMidnightSAST = new Date(nowSAST)
-      nextMidnightSAST.setHours(24, 0, 0, 0) // Set to next midnight
-
-      // Convert back to UTC for calculation
-      const nextMidnightUTC = new Date(nextMidnightSAST.getTime() - 2 * 60 * 60 * 1000)
-      const diff = nextMidnightUTC.getTime() - now.getTime()
+      const nextMidnight = getNextMidnightSAST(now)
+      const diff = nextMidnight.getTime() - now.getTime()
 
       if (diff <= 0) {
         setCountdown({ days: '00', hours: '00', minutes: '00', seconds: '00' })

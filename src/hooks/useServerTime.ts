@@ -19,8 +19,15 @@ export function useServerTime() {
   useEffect(() => {
     const syncTime = async () => {
       try {
-        // Fetch current server time from World Time API (SAST timezone)
-        const response = await fetch('https://worldtimeapi.org/api/timezone/Africa/Johannesburg')
+        // Fetch with 5-second timeout
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000)
+
+        const response = await fetch('https://worldtimeapi.org/api/timezone/Africa/Johannesburg', {
+          signal: controller.signal
+        })
+        clearTimeout(timeout)
+
         if (!response.ok) throw new Error('Failed to fetch server time')
 
         const data = await response.json()
@@ -33,7 +40,6 @@ export function useServerTime() {
         setSynced(true)
         setError(null)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
         // Fallback: assume client time is correct
         timeOffset = 0
       }

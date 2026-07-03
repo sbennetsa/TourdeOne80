@@ -132,7 +132,7 @@ export function Landing() {
             onClick={() => navigate('/leaderboard?c=20')}
             className="mt-8 rounded-full bg-brand px-7 py-3.5 font-label text-[13px] font-bold uppercase tracking-[1.5px] text-white transition-all hover:bg-blue-600"
           >
-            Enter The Tour
+            Enter
           </button>
         </div>
       </div>

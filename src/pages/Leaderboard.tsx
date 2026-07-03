@@ -36,7 +36,7 @@ export function Leaderboard() {
             <div className="space-y-6">
               <div className="rounded-lg border border-line border-l-4 border-l-cyan bg-panel p-6 text-center">
                 <p className="text-lg font-semibold text-muted">
-                  Tour starts July 4 at 09:00 UTC
+                  Tour starts July 4 at midnight SAST (South African Standard Time)
                 </p>
                 <p className="mt-2 text-sm text-faint">
                   {((data10?.gc_entries.length || 0) + (data20?.gc_entries.length || 0))} participants ready to race

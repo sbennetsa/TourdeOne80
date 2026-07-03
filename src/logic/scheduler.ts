@@ -10,16 +10,27 @@ import { CONFIG } from "../config"
  * Calculate next midnight in SAST (South African Standard Time, UTC+2)
  */
 export function getNextMidnightSAST(now: Date): Date {
-  // Convert current UTC time to SAST by adding 2 hours
-  const nowSAST = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+  // SAST = UTC + 2 hours
+  // Get current UTC components
+  const utcHours = now.getUTCHours()
+  const utcMinutes = now.getUTCMinutes()
+  const utcSeconds = now.getUTCSeconds()
+  const utcMs = now.getUTCMilliseconds()
 
-  // Calculate next midnight SAST
-  const nextMidnightSAST = new Date(nowSAST)
-  nextMidnightSAST.setHours(24, 0, 0, 0) // Set to next midnight
+  // Calculate current time in SAST
+  let sastHours = (utcHours + 2) % 24
+  const sastMinutes = utcMinutes
+  const sastSeconds = utcSeconds
 
-  // Convert back to UTC for calculation
-  const nextMidnightUTC = new Date(nextMidnightSAST.getTime() - 2 * 60 * 60 * 1000)
-  return nextMidnightUTC
+  // Calculate total seconds elapsed in the current SAST day
+  const secondsIntoSASTDay = sastHours * 3600 + sastMinutes * 60 + sastSeconds
+
+  // Seconds until next midnight SAST
+  const secondsPerDay = 24 * 3600
+  const secondsUntilMidnight = secondsPerDay - secondsIntoSASTDay
+
+  // Return the UTC time of next midnight SAST
+  return new Date(now.getTime() + secondsUntilMidnight * 1000 - utcMs)
 }
 
 /**

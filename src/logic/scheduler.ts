@@ -7,6 +7,22 @@ import { Stage, RaceState, StageState } from "../types"
 import { CONFIG } from "../config"
 
 /**
+ * Calculate next midnight in SAST (South African Standard Time, UTC+2)
+ */
+export function getNextMidnightSAST(now: Date): Date {
+  // Convert current UTC time to SAST by adding 2 hours
+  const nowSAST = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+
+  // Calculate next midnight SAST
+  const nextMidnightSAST = new Date(nowSAST)
+  nextMidnightSAST.setHours(24, 0, 0, 0) // Set to next midnight
+
+  // Convert back to UTC for calculation
+  const nextMidnightUTC = new Date(nextMidnightSAST.getTime() - 2 * 60 * 60 * 1000)
+  return nextMidnightUTC
+}
+
+/**
  * Compute start datetime for a stage
  * Uses per-stage Start column if present, else global DAILY_START_TIME + Date
  */
@@ -77,13 +93,12 @@ export function getRaceState(allStages: Stage[], now: Date): RaceState {
   // Pre-tour: before first stage
   const firstStage = numericStages[0]
   if (!firstStage || now < getStageStart(firstStage)) {
-    const countdown = firstStage
-      ? Math.floor((getStageStart(firstStage).getTime() - now.getTime()) / 1000)
-      : 0
+    const nextMidnight = getNextMidnightSAST(now)
+    const countdown = Math.floor((nextMidnight.getTime() - now.getTime()) / 1000)
     return {
       currentStage: null,
       currentStageState: "upcoming",
-      countdown_seconds: countdown,
+      countdown_seconds: Math.max(0, countdown),
       next_stage: firstStage || null,
       closed_stages: [],
     }
@@ -124,8 +139,9 @@ export function getRaceState(allStages: Stage[], now: Date): RaceState {
     }
   }
 
-  const nextStart = nextStage ? getStageStart(nextStage) : lastStage ? getStageClose(lastStage, allStages) : new Date()
-  const countdown = Math.floor((nextStart.getTime() - now.getTime()) / 1000)
+  // Countdown is always to next midnight SAST
+  const nextMidnight = getNextMidnightSAST(now)
+  const countdown = Math.floor((nextMidnight.getTime() - now.getTime()) / 1000)
 
   return {
     currentStage,

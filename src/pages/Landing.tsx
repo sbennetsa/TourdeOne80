@@ -10,11 +10,18 @@ export function Landing() {
 
   useEffect(() => {
     const updateCountdown = () => {
+      // Get current time and calculate next midnight in SAST (UTC+2)
       const now = new Date()
-      // July 4, 2026 at 09:00 SAST (South African Standard Time, UTC+2)
-      // In UTC, this is 07:00
-      const tourStart = new Date('2026-07-04T07:00:00Z')
-      const diff = tourStart.getTime() - now.getTime()
+      // Convert current UTC time to SAST by adding 2 hours
+      const nowSAST = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+
+      // Calculate next midnight SAST
+      const nextMidnightSAST = new Date(nowSAST)
+      nextMidnightSAST.setHours(24, 0, 0, 0) // Set to next midnight
+
+      // Convert back to UTC for calculation
+      const nextMidnightUTC = new Date(nextMidnightSAST.getTime() - 2 * 60 * 60 * 1000)
+      const diff = nextMidnightUTC.getTime() - now.getTime()
 
       if (diff <= 0) {
         setCountdown({ days: '00', hours: '00', minutes: '00', seconds: '00' })

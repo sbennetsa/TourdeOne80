@@ -11,7 +11,9 @@ export function Landing() {
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date()
-      const tourStart = new Date('2026-07-04T09:00:00Z')
+      // July 4, 2026 at 09:00 SAST (South African Standard Time, UTC+2)
+      // In UTC, this is 07:00
+      const tourStart = new Date('2026-07-04T07:00:00Z')
       const diff = tourStart.getTime() - now.getTime()
 
       if (diff <= 0) {

@@ -13,8 +13,8 @@ export const CONFIG = {
   },
 
   // Timing & timezone
-  TIMEZONE: "UTC",      // e.g., "Europe/Paris", "America/New_York"
-  DAILY_START_TIME: "09:00",  // HH:MM format, daily stage start (UTC)
+  TIMEZONE: "Africa/Johannesburg",  // South African Standard Time (SAST, UTC+2)
+  DAILY_START_TIME: "09:00",  // HH:MM format, daily stage start (SAST)
   SYNC_INTERVAL_MS: 60_000,   // Poll Google Sheet every 60 seconds
 
   // Tour dates

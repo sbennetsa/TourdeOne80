@@ -8,6 +8,7 @@ import {
   getStageState,
   getClosedStages,
   getRaceState,
+  getNextMidnightSAST,
   formatCountdown,
 } from "./scheduler"
 import { mockStages } from "../data/mockData"
@@ -23,12 +24,12 @@ describe("getStageStart", () => {
   })
 
   it("combines stage date + DAILY_START_TIME when start not present", () => {
-    // Assuming DAILY_START_TIME is "09:00"
+    // DAILY_START_TIME is "00:00" (stages start at midnight)
     const start = getStageStart(stage)
     expect(start.getFullYear()).toBe(2026)
     expect(start.getMonth()).toBe(6) // July (0-indexed)
     expect(start.getDate()).toBe(4)
-    expect(start.getHours()).toBe(9)
+    expect(start.getHours()).toBe(0)
     expect(start.getMinutes()).toBe(0)
   })
 })
@@ -103,13 +104,15 @@ describe("getRaceState", () => {
     expect(state.currentStageState).toBe("live")
   })
 
-  it("computes countdown to next stage start", () => {
+  it("computes countdown to next midnight SAST", () => {
     const stage1Start = getStageStart(mockStages[0])
     const now = stage1Start // exactly at stage 1 start
     const state = getRaceState(mockStages, now)
-    // Should count down to stage 2 start
-    const expectedCountdown = Math.floor((getStageStart(mockStages[1]).getTime() - now.getTime()) / 1000)
+    // Countdown always targets the next midnight SAST
+    const expectedCountdown = Math.floor((getNextMidnightSAST(now).getTime() - now.getTime()) / 1000)
     expect(state.countdown_seconds).toBe(expectedCountdown)
+    expect(state.countdown_seconds).toBeGreaterThan(0)
+    expect(state.countdown_seconds).toBeLessThanOrEqual(86400)
   })
 })
 

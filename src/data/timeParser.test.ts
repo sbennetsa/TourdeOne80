@@ -7,8 +7,8 @@ import { parseTime, formatTime, formatGap } from "./timeParser"
 
 describe("parseTime", () => {
   // Valid h:mm:ss format
-  it("parses h:mm:ss (1:08:30 → 3910s)", () => {
-    expect(parseTime("1:08:30")).toBe(3910)
+  it("parses h:mm:ss (1:08:30 → 4110s)", () => {
+    expect(parseTime("1:08:30")).toBe(4110)
   })
 
   // Valid mm:ss format

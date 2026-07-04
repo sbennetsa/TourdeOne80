@@ -45,12 +45,15 @@ describe("computeRiderGC", () => {
     // Only count stage 1 as closed
     const stats = computeRiderGC("Kelvin", mockEntries, mockStages, [1])
     expect(stats.total_time_seconds).toBe(1920)
-    expect(stats.stages_ridden).toBe(1)
+    // stages_ridden counts every posted ride (incl. live stages), not just closed
+    expect(stats.stages_ridden).toBe(5)
   })
 
   it("handles rider with no entries", () => {
     const stats = computeRiderGC("NoRider", mockEntries, mockStages, closedStages)
-    expect(stats.total_time_seconds).toBe(0)
+    // Every missed stage costs slowest actual time + 5:00 penalty:
+    // (2110+300) + (4320+300) + (5340+300) + (4500+300) + (3720+300) = 21490
+    expect(stats.total_time_seconds).toBe(21490)
     expect(stats.stages_ridden).toBe(0)
     expect(stats.stages_missed).toBe(5)
     expect(stats.is_disqualified).toBe(true) // 5 misses → DQ
@@ -196,8 +199,9 @@ describe("buildLeaderboard (§10 fixture integration)", () => {
     )
 
     const kelvin = leaderboard.find(e => e.riderName === "Kelvin")!
-    // Kelvin: 1920 + 4080 = 6000s
+    // Kelvin: 1920 + 4080 = 6000s (GC time only counts closed stages)
     expect(kelvin.total_time_seconds).toBe(6000)
-    expect(kelvin.stages_ridden).toBe(2)
+    // stages_ridden counts every posted ride (incl. live stages)
+    expect(kelvin.stages_ridden).toBe(5)
   })
 })

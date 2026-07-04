@@ -26,8 +26,13 @@ export function Stats({ gcEntries, raceState, totalStages }: Props) {
     )
   }
 
+  const currentStageNum = raceState.currentStage?.number
+  const stageTile = currentStageNum
+    ? { label: 'Current Stage', value: `${currentStageNum}/${totalStages}`, color: 'text-cyan' }
+    : { label: 'Stages Done', value: `${stagesCompleted}/${totalStages}`, color: 'text-cyan' }
+
   const statTiles = [
-    { label: 'Stages Done', value: `${stagesCompleted}/${totalStages}`, color: 'text-cyan' },
+    stageTile,
     { label: 'Active Riders', value: riderCount.toString(), color: 'text-jersey-green' },
     { label: 'Total Distance', value: `${Math.round(totalFieldDistance)}km`, color: 'text-cream' },
     { label: 'Everests', value: everestEquivalent.toFixed(1) + '×', color: 'text-jersey-polka' },

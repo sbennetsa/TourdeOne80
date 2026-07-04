@@ -32,8 +32,13 @@ export function computeRiderGC(
   const riderTimes = riderEntries.filter(e => e.riderName === riderName && e.is_valid)
 
   let totalTime = 0
-  let stagesRidden = 0
   let stagesMissed = 0
+
+  // Stages ridden counts every posted time (including the live stage),
+  // while GC time/misses/DQ below are based on closed stages only
+  const stagesRidden = new Set(
+    riderTimes.filter(e => e.time_seconds !== undefined).map(e => e.stageNumber)
+  ).size
 
   for (const stageNum of closedStages) {
     const entry = riderTimes.find(e => e.stageNumber === stageNum)
@@ -44,10 +49,10 @@ export function computeRiderGC(
     if (entry?.time_seconds !== undefined) {
       // Rider completed the stage
       totalTime += entry.time_seconds
-      stagesRidden++
     } else {
-      // Rider missed a closed stage
-      const slowestTime = getSlowestStageTime(stageNum, riderTimes)
+      // Rider missed a closed stage — penalty basis is the slowest time
+      // posted by ANY rider on that stage, not this rider's own entries
+      const slowestTime = getSlowestStageTime(stageNum, riderEntries)
       if (slowestTime !== null) {
         // Apply penalty: slowest + 5:00
         totalTime += slowestTime + CONFIG.missedStagePenalty

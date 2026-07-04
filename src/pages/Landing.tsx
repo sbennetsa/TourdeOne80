@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useLeaderboard } from '../hooks'
 import { getNextMidnightSAST } from '../logic/scheduler'
+import { CONFIG } from '../config'
 
 export function Landing() {
   const navigate = useNavigate()
@@ -50,6 +51,16 @@ export function Landing() {
   const totalStages = data20?.gc_entries[0]?.total_stages || data10?.gc_entries[0]?.total_stages || 21
   const totalDays = 23 // Tour duration (fixed: 4-26 July = 23 days)
   const riderCount = allRiders.size || 0
+
+  // Tour has started once a stage is live/closed (fallback to config date while data loads)
+  const raceState = data20?.race_state || data10?.race_state
+  const tourStarted = raceState
+    ? !(raceState.currentStageState === 'upcoming' && !raceState.currentStage && raceState.closed_stages.length === 0)
+    : new Date() >= CONFIG.tourStart
+  const isFinished = raceState?.currentStageState === 'finished'
+  const liveStageLabel = raceState?.currentStage
+    ? `STAGE ${raceState.currentStage.number}`
+    : isFinished ? 'TOUR FINISHED' : 'REST DAY'
   const jerseyCount = 5
 
   return (
@@ -99,25 +110,37 @@ export function Landing() {
             TrainingPeaks grand tour.
           </p>
 
-          {/* Countdown Timer */}
-          <div className="mx-auto mt-10 rounded-xl border border-line bg-panel p-6">
-            <p className="font-label text-xs font-bold uppercase tracking-[2px] text-faint mb-3">Tour Starts In</p>
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="font-display text-[48px] leading-none text-cyan">{countdown.days}</span>
-              <span className="font-display text-[40px] leading-none text-faint">:</span>
-              <span className="font-display text-[48px] leading-none text-cyan">{countdown.hours}</span>
-              <span className="font-display text-[40px] leading-none text-faint">:</span>
-              <span className="font-display text-[48px] leading-none text-cyan">{countdown.minutes}</span>
-              <span className="font-display text-[40px] leading-none text-faint">:</span>
-              <span className="font-display text-[48px] leading-none text-cream">{countdown.seconds}</span>
+          {/* Countdown (pre-tour) or Live banner (tour underway) */}
+          {tourStarted ? (
+            <div className="mx-auto mt-10 rounded-xl border border-line bg-panel p-6">
+              {!isFinished && (
+                <p className="font-label text-xs font-bold uppercase tracking-[2px] text-faint mb-3">
+                  <span className="mr-2 inline-block h-2 w-2 rounded-full bg-jersey-green animate-pulse" />
+                  Tour Is Live
+                </p>
+              )}
+              <p className="font-display text-[48px] leading-none text-cyan">{liveStageLabel}</p>
             </div>
-            <div className="mt-2 flex gap-8 justify-center text-center text-[9px] font-label uppercase text-faint">
-              <span>Days</span>
-              <span>Hours</span>
-              <span>Minutes</span>
-              <span>Seconds</span>
+          ) : (
+            <div className="mx-auto mt-10 rounded-xl border border-line bg-panel p-6">
+              <p className="font-label text-xs font-bold uppercase tracking-[2px] text-faint mb-3">Tour Starts In</p>
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="font-display text-[48px] leading-none text-cyan">{countdown.days}</span>
+                <span className="font-display text-[40px] leading-none text-faint">:</span>
+                <span className="font-display text-[48px] leading-none text-cyan">{countdown.hours}</span>
+                <span className="font-display text-[40px] leading-none text-faint">:</span>
+                <span className="font-display text-[48px] leading-none text-cyan">{countdown.minutes}</span>
+                <span className="font-display text-[40px] leading-none text-faint">:</span>
+                <span className="font-display text-[48px] leading-none text-cream">{countdown.seconds}</span>
+              </div>
+              <div className="mt-2 flex gap-8 justify-center text-center text-[9px] font-label uppercase text-faint">
+                <span>Days</span>
+                <span>Hours</span>
+                <span>Minutes</span>
+                <span>Seconds</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* CTA */}
           <button

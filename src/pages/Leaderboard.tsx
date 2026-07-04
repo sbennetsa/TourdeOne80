@@ -99,13 +99,36 @@ export function Leaderboard() {
           {/* Race-day panel: Countdown + Pen */}
           {data20 && <Countdown raceState={data20.race_state} />}
 
-          {/* The Pen (riders in the pen, today's results) */}
-          {data20 && data20.race_state.currentStageState === 'live' && (
-            <Pen
-              raceState={data20.race_state}
-              allRiders={data20.gc_entries.map(e => e.riderName)}
-              stageEntries={[]}
-            />
+          {/* The Pen (riders in the pen, today's results) — one per challenge */}
+          {(data10?.race_state.currentStageState === 'live' || data20?.race_state.currentStageState === 'live') && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {data10 && data10.race_state.currentStageState === 'live' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-[28px] w-1 bg-cyan" />
+                    <h2 className="font-display text-[28px] leading-tight text-cream">10% · Today</h2>
+                  </div>
+                  <Pen
+                    raceState={data10.race_state}
+                    allRiders={data10.gc_entries.map(e => e.riderName)}
+                    stageEntries={data10.entries}
+                  />
+                </div>
+              )}
+              {data20 && data20.race_state.currentStageState === 'live' && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-[28px] w-1 bg-cyan" />
+                    <h2 className="font-display text-[28px] leading-tight text-cream">20% · Today</h2>
+                  </div>
+                  <Pen
+                    raceState={data20.race_state}
+                    allRiders={data20.gc_entries.map(e => e.riderName)}
+                    stageEntries={data20.entries}
+                  />
+                </div>
+              )}
+            </div>
           )}
 
           {/* Side-by-side GC Tables */}
@@ -118,8 +141,8 @@ export function Leaderboard() {
                   <h2 className="font-display text-[28px] leading-tight text-cream">10% Challenge</h2>
                 </div>
 
-                {data10.race_state.closed_stages.length === 0 && data10.race_state.currentStageState === 'upcoming' ? (
-                  <p className="text-muted">Standings will appear after the first stage closes.</p>
+                {data10.race_state.closed_stages.length === 0 ? (
+                  <p className="text-muted">Standings will appear after Stage 1 closes at midnight.</p>
                 ) : (
                   <GCTable entries={data10.gc_entries} jerseys={data10.jerseys} />
                 )}
@@ -140,8 +163,8 @@ export function Leaderboard() {
                   <h2 className="font-display text-[28px] leading-tight text-cream">20% Challenge</h2>
                 </div>
 
-                {data20.race_state.closed_stages.length === 0 && data20.race_state.currentStageState === 'upcoming' ? (
-                  <p className="text-muted">Standings will appear after the first stage closes.</p>
+                {data20.race_state.closed_stages.length === 0 ? (
+                  <p className="text-muted">Standings will appear after Stage 1 closes at midnight.</p>
                 ) : (
                   <GCTable entries={data20.gc_entries} jerseys={data20.jerseys} />
                 )}

@@ -114,5 +114,6 @@ export interface LeaderboardData {
   gc_entries: GCEntry[]
   jerseys: Record<JerseyType, JerseyHolder>
   race_state: RaceState
+  entries: RiderEntry[]
   last_synced: Date
 }

@@ -89,6 +89,7 @@ export function useLeaderboard(challenge: Challenge) {
         gc_entries: gcEntries,
         jerseys,
         race_state: raceState,
+        entries,
         last_synced: new Date(),
       })
 

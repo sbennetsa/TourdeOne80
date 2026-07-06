@@ -65,6 +65,8 @@ export interface GCEntry {
   stages_missed: number
   total_stages: number  // For display: "12/21"
   total_elevation_m: number
+  total_distance_km: number  // Sum of target km for completed stages
+  tour_target_km: number     // Full-tour target km for this rider's challenge
   stage_wins: number
   is_disqualified: boolean  // 3+ misses
   platform?: Platform

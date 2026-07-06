@@ -117,6 +117,27 @@ export function computeTotalElevation(
 }
 
 /**
+ * Compute total distance ridden (sum of target km for completed stages)
+ */
+export function computeTotalDistance(
+  riderName: string,
+  riderEntries: RiderEntry[],
+  allStages: Stage[]
+): number {
+  let total = 0
+  const riderTimes = riderEntries.filter(e => e.riderName === riderName && e.is_valid)
+
+  for (const entry of riderTimes) {
+    if (entry.time_seconds !== undefined) {
+      const stage = allStages.find(s => s.number === entry.stageNumber)
+      if (stage) total += stage.target_km
+    }
+  }
+
+  return total
+}
+
+/**
  * Build full GC leaderboard for all riders in a challenge
  */
 export function buildLeaderboard(
@@ -146,6 +167,11 @@ export function buildLeaderboard(
     return b.stages_ridden - a.stages_ridden
   })
 
+  // Full-tour target distance for this challenge (rest days excluded)
+  const tourTargetKm = stages
+    .filter(s => typeof s.number === "number")
+    .reduce((sum, s) => sum + s.target_km, 0)
+
   // Build GC entries with gaps
   const gcEntries: GCEntry[] = stats.map((stat, rank) => {
     const riderObj = challengeRiders.find(r => r.name === stat.riderName)
@@ -162,6 +188,8 @@ export function buildLeaderboard(
       stages_missed: stat.stages_missed,
       total_stages: stages.length,
       total_elevation_m: stat.total_elevation_m,
+      total_distance_km: computeTotalDistance(stat.riderName, entries, stages),
+      tour_target_km: tourTargetKm,
       stage_wins: countStageWins(stat.riderName, entries, stages),
       is_disqualified: stat.is_disqualified,
       platform: riderObj?.platform,

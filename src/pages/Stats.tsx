@@ -10,7 +10,7 @@ export function Stats({ gcEntries, raceState, totalStages }: Props) {
   const stagesCompleted = raceState.closed_stages.length
   const riderCount = gcEntries.length
   const totalFieldDistance = gcEntries.reduce((sum, entry) => {
-    return sum + (entry.total_elevation_m / 1000) * 50
+    return sum + entry.total_distance_km
   }, 0)
   const totalElevationGained = gcEntries.reduce((sum, entry) => {
     return sum + entry.total_elevation_m
@@ -96,28 +96,29 @@ function Heatmap({ gcEntries, totalStages }: { gcEntries: GCEntry[]; totalStages
 }
 
 function ProgressBars({ gcEntries }: { gcEntries: GCEntry[] }) {
-  const maxElevation = Math.max(...gcEntries.map(e => e.total_elevation_m), 1)
-
   return (
     <div className="space-y-3 pt-2">
-      {gcEntries.slice(0, 20).map(entry => (
-        <div key={entry.riderName}>
-          <div className="mb-1 flex items-center justify-between">
-            <span className="text-sm font-body font-bold text-cream">{entry.riderName}</span>
-            <span className="font-body text-xs tabular-nums text-faint">
-              {Math.round(entry.total_elevation_m)}m
-            </span>
+      {gcEntries.slice(0, 20).map(entry => {
+        const pct = entry.tour_target_km > 0
+          ? (entry.total_distance_km / entry.tour_target_km) * 100
+          : 0
+        return (
+          <div key={entry.riderName}>
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-sm font-body font-bold text-cream">{entry.riderName}</span>
+              <span className="font-body text-xs tabular-nums text-faint">
+                {entry.total_distance_km.toFixed(1)} / {entry.tour_target_km.toFixed(1)} km ({Math.round(pct)}%)
+              </span>
+            </div>
+            <div className="h-2 rounded-full bg-white/[0.07]">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-jersey-green to-[#3fd07f]"
+                style={{ width: `${Math.min(100, pct)}%` }}
+              />
+            </div>
           </div>
-          <div className="h-2 rounded-full bg-white/[0.07]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-jersey-green to-[#3fd07f]"
-              style={{
-                width: `${maxElevation > 0 ? (entry.total_elevation_m / maxElevation) * 100 : 0}%`,
-              }}
-            />
-          </div>
-        </div>
-      ))}
+        )
+      })}
       {gcEntries.length > 20 && (
         <p className="pt-1 text-xs text-faint">+{gcEntries.length - 20} more riders...</p>
       )}

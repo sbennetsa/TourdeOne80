@@ -41,9 +41,12 @@ export function parseChallengePlannerTab(
   const dateCol = headers.find(h => h.toLowerCase().includes("date"))
   const distanceCol = headers.find(h => h.toLowerCase().includes("distance"))
   const elevationCol = headers.find(h => h.toLowerCase().includes("elevation"))
-  const targetCol = headers.find(
-    h => h.toLowerCase().includes("target") && h.toLowerCase().includes(challenge)
-  )
+  // Prefer a header matching this tab's own percentage (e.g. "10% Target"),
+  // but fall back to any "Target" column — each challenge tab has exactly one,
+  // and its label sometimes gets mislabeled with the other challenge's percent.
+  const targetCol =
+    headers.find(h => h.toLowerCase().includes("target") && h.toLowerCase().includes(challenge)) ||
+    headers.find(h => h.toLowerCase().includes("target"))
   const profileCol = headers.find(h => h.toLowerCase().includes("profile"))
   const zwCol = headers.find(h => h.toLowerCase().includes("zw") && !h.toLowerCase().includes("route"))
   const tpCol = headers.find(h => h.toLowerCase().includes("tp") && !h.toLowerCase().includes("route"))

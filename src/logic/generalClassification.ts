@@ -138,17 +138,79 @@ export function computeTotalDistance(
 }
 
 /**
+ * Detect entries that are a manually-recorded "missed stage" penalty rather
+ * than a genuine ride. Some organisers record a miss by typing the penalty
+ * value (slowest actual time + 5:00) directly into the cell instead of
+ * leaving it blank, which would otherwise be double-counted as a completed
+ * ride on top of the app's own penalty. Two signatures give it away:
+ *   - Two or more riders share the exact same (slowest) time on a stage
+ *   - The single slowest time is exactly 5:00 more than the next-slowest
+ * Returns a set of "riderName|stageNumber" keys to treat as not-ridden.
+ */
+export function detectManualMissPenalties(entries: RiderEntry[]): Set<string> {
+  const flagged = new Set<string>()
+
+  const stageNumbers = new Set(
+    entries.filter(e => typeof e.stageNumber === "number").map(e => e.stageNumber as number)
+  )
+
+  for (const stageNum of stageNumbers) {
+    const stageEntries = entries.filter(
+      e => e.stageNumber === stageNum && e.is_valid && e.time_seconds !== undefined
+    )
+    if (stageEntries.length < 2) continue
+
+    const sorted = [...stageEntries].sort((a, b) => b.time_seconds! - a.time_seconds!)
+    const maxTime = sorted[0].time_seconds!
+    const tiedAtMax = sorted.filter(e => e.time_seconds === maxTime)
+
+    if (tiedAtMax.length >= 2) {
+      // Shared penalty value copied across multiple riders
+      tiedAtMax.forEach(e => flagged.add(`${e.riderName}|${stageNum}`))
+      continue
+    }
+
+    // Single slowest rider — exactly 5:00 more than the next-slowest
+    const secondTime = sorted[1]?.time_seconds
+    if (secondTime !== undefined && maxTime - secondTime === CONFIG.missedStagePenalty) {
+      flagged.add(`${sorted[0].riderName}|${stageNum}`)
+    }
+  }
+
+  return flagged
+}
+
+/**
+ * Strip manually-recorded miss penalties from entries, treating them as
+ * not-ridden (time_seconds undefined) so downstream GC/stats logic applies
+ * the standard missed-stage penalty exactly once.
+ */
+export function scrubManualMissPenalties(entries: RiderEntry[]): RiderEntry[] {
+  const flagged = detectManualMissPenalties(entries)
+  if (flagged.size === 0) return entries
+
+  return entries.map(e =>
+    typeof e.stageNumber === "number" && flagged.has(`${e.riderName}|${e.stageNumber}`)
+      ? { ...e, time_seconds: undefined }
+      : e
+  )
+}
+
+/**
  * Build full GC leaderboard for all riders in a challenge
  */
 export function buildLeaderboard(
   riders: Rider[],
-  entries: RiderEntry[],
+  rawEntries: RiderEntry[],
   stages: Stage[],
   closedStages: number[],
   challenge: "10" | "20"
 ): GCEntry[] {
   // Filter riders for this challenge
   const challengeRiders = riders.filter(r => r.challenge === challenge)
+
+  // Strip manually-recorded miss penalties so they aren't double-counted
+  const entries = scrubManualMissPenalties(rawEntries)
 
   // Compute stats for each rider
   const stats = challengeRiders.map(r =>

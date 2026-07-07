@@ -9,8 +9,11 @@ import {
   getSlowestStageTime,
   buildLeaderboard,
   getStageWinner,
+  detectManualMissPenalties,
+  scrubManualMissPenalties,
 } from "./generalClassification"
 import { mockStages, mockRiders, mockEntries } from "../data/mockData"
+import { RiderEntry } from "../types"
 
 describe("computeRiderGC", () => {
   // All stages are "closed" for this test (cumulative computation)
@@ -203,5 +206,73 @@ describe("buildLeaderboard (§10 fixture integration)", () => {
     expect(kelvin.total_time_seconds).toBe(6000)
     // stages_ridden counts every posted ride (incl. live stages)
     expect(kelvin.stages_ridden).toBe(5)
+  })
+})
+
+describe("detectManualMissPenalties", () => {
+  it("flags riders who share the exact same (slowest) time on a stage", () => {
+    const entries: RiderEntry[] = [
+      { riderName: "A", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "B", stageNumber: 1, time_seconds: 1500, is_valid: true },
+      { riderName: "C", stageNumber: 1, time_seconds: 1500, is_valid: true },
+    ]
+    const flagged = detectManualMissPenalties(entries)
+    expect(flagged.has("B|1")).toBe(true)
+    expect(flagged.has("C|1")).toBe(true)
+    expect(flagged.has("A|1")).toBe(false)
+  })
+
+  it("flags a single slowest rider exactly 5:00 behind the next-slowest", () => {
+    const entries: RiderEntry[] = [
+      { riderName: "A", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "B", stageNumber: 1, time_seconds: 1300, is_valid: true }, // exactly +300s
+    ]
+    const flagged = detectManualMissPenalties(entries)
+    expect(flagged.has("B|1")).toBe(true)
+    expect(flagged.has("A|1")).toBe(false)
+  })
+
+  it("does not flag a normal field with varied times", () => {
+    const flagged = detectManualMissPenalties(mockEntries)
+    expect(flagged.size).toBe(0)
+  })
+
+  it("does not flag when the gap to next-slowest isn't exactly 5:00", () => {
+    const entries: RiderEntry[] = [
+      { riderName: "A", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "B", stageNumber: 1, time_seconds: 1200, is_valid: true }, // +200s, not +300s
+    ]
+    expect(detectManualMissPenalties(entries).size).toBe(0)
+  })
+})
+
+describe("scrubManualMissPenalties", () => {
+  it("clears time_seconds for flagged entries, leaves others untouched", () => {
+    const entries: RiderEntry[] = [
+      { riderName: "A", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "B", stageNumber: 1, time_seconds: 1300, is_valid: true }, // manual +5:00 miss
+    ]
+    const scrubbed = scrubManualMissPenalties(entries)
+    expect(scrubbed.find(e => e.riderName === "A")?.time_seconds).toBe(1000)
+    expect(scrubbed.find(e => e.riderName === "B")?.time_seconds).toBeUndefined()
+  })
+
+  it("re-applies the standard penalty once via buildLeaderboard instead of double-counting", () => {
+    // Stage 1: A rides genuinely; B's cell has the manually-recorded penalty
+    // value (A's time + 5:00) typed in rather than left blank.
+    const entries: RiderEntry[] = [
+      { riderName: "A", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "B", stageNumber: 1, time_seconds: 1300, is_valid: true },
+    ]
+    const riders = [
+      { name: "A", challenge: "20" as const, isNew: false, isCombative: false },
+      { name: "B", challenge: "20" as const, isNew: false, isCombative: false },
+    ]
+    const leaderboard = buildLeaderboard(riders, entries, [mockStages[0]], [1], "20")
+    const b = leaderboard.find(e => e.riderName === "B")!
+    // Penalty applied exactly once: 1000 (slowest real time) + 300 = 1300
+    expect(b.total_time_seconds).toBe(1300)
+    expect(b.stages_missed).toBe(1)
+    expect(b.stages_ridden).toBe(0)
   })
 })

@@ -12,7 +12,7 @@ import {
 } from '../data/sheetParser'
 import { validateSheet } from '../data/validation'
 import { getRaceState } from '../logic/scheduler'
-import { buildLeaderboard } from '../logic/generalClassification'
+import { buildLeaderboard, scrubManualMissPenalties } from '../logic/generalClassification'
 import { getJerseys } from '../logic/jerseys'
 import { CONFIG } from '../config'
 
@@ -71,8 +71,13 @@ export function useLeaderboard(challenge: Challenge) {
 
       // Compute leaderboard for selected challenge
       const stages = challenge === '20' ? stages20 : stages10
-      const entries = challenge === '20' ? entries20 : entries10
+      const rawEntries = challenge === '20' ? entries20 : entries10
       const challengeRiders = challenge === '20' ? riders20 : riders10
+
+      // Strip manually-recorded miss penalties (organiser typed slowest+5:00
+      // into the cell instead of leaving it blank) so Pen/GC agree on what
+      // counts as an actual ride
+      const entries = scrubManualMissPenalties(rawEntries)
 
       const raceState = getRaceState(stages, new Date())
       const gcEntries = buildLeaderboard(

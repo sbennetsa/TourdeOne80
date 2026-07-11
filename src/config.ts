@@ -32,7 +32,7 @@ export const CONFIG = {
   },
 
   // Disqualification rule
-  missThreshold: 3,              // Riders with 3+ missed stages are DQ'd from Yellow/White
+  missThreshold: 3,              // Riders with 3+ CONSECUTIVE missed stages are DQ'd from Yellow/White (permanent once triggered)
   missedStagePenalty: 300,       // seconds (5:00) added to missed stage time in GC
 
   // Highlight stages for KOM bonus (Later feature)

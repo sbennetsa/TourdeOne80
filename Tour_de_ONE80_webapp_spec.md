@@ -95,13 +95,13 @@ A rider **completed** a stage if the cell holds a valid time. A time is the only
   - **Timed** → the rider's own time.
   - **Missed** (a **closed** stage with no time) → that stage's **slowest actual time + 5:00**; counts as a miss.
   Riders are ranked by this cumulative time with **gaps to leader** (e.g. `+2:14`) and **stages ridden** shown alongside.
-  - **Disqualification:** missing **3 or more** closed stages removes a rider from the **Yellow (and White)** jersey — they stay on the board flagged `DQ`, and remain eligible for Green, Polka-dot and every stat. DQ is permanent once triggered.
+  - **Disqualification:** missing **3 or more consecutive** closed stages removes a rider from the **Yellow (and White)** jersey — they stay on the board flagged `DQ`, and remain eligible for Green, Polka-dot and every stat. DQ is permanent once triggered (the streak breaking with a later completed stage does not un-DQ them). Non-consecutive misses that add up to 3+ do **not** trigger DQ.
   - Edge case: if a past stage has no recorded time from *anyone* yet, it's excluded from GC (no penalty basis) until at least one time exists.
 
 ### 5.4 The five jerseys
 | Jersey | Metric | Tie-break |
 |---|---|---|
-| 🟡 **Yellow** (GC) | lowest cumulative time; missed stage = slowest + 5:00; **DQ at 3 misses** | fewer misses → more stages ridden |
+| 🟡 **Yellow** (GC) | lowest cumulative time; missed stage = slowest + 5:00; **DQ at 3 consecutive misses** | fewer misses → more stages ridden |
 | 🔴 **Polka-dot** (KOM) | most total elevation from completed stages | more stages completed |
 | 🟢 **Green** (stages) | most stages completed | lower total time |
 | ⚪ **White** (new rider) | Yellow (time GC) restricted to `New = Y` | as Yellow |
@@ -118,7 +118,7 @@ Map each stage `Date` (+2026, in `TIMEZONE`) to a **start datetime** — the `St
 ### 6.1 Leaderboard (MVP — headline)
 - Challenge switcher **10% ↔ 20%** (persist in URL, `?c=20`).
 - **Jersey cards:** Yellow, Polka-dot, Green, White, Combative — holder + key figure.
-- **GC table:** rank, rider, cumulative time, **gap to leader**, **stages ridden** (e.g. `12/21`), **missed** count, total elevation. Penalised (missed) stages flagged; riders with 3+ misses carry a `DQ` badge and can't hold Yellow. Every rider appears. Sortable; default = GC time.
+- **GC table:** rank, rider, cumulative time, **gap to leader**, **stages ridden** (e.g. `12/21`), **missed** count, total elevation. Penalised (missed) stages flagged; riders with 3+ consecutive misses carry a `DQ` badge and can't hold Yellow. Every rider appears. Sortable; default = GC time.
 - **"Last synced" badge** for data freshness.
 - Acceptance: correct holders/order + correct gaps for the §10 fixture; no horizontal scroll at 375 px.
 
@@ -174,21 +174,21 @@ Handle missing tabs/columns, blank/rest rows, and roster/column mismatches with 
 | 4 | 1:10:00 | 1:15:00 | 1:11:00 |
 | 5 | 0:58:00 | 1:02:00 | (miss) |
 
-Misses: Kelvin 0, Rienzo 1 (S3), Alex 3 (S2, S3, S5). Slowest actual time per stage → S3 = 1:29:00, S5 = 1:02:00, etc.
+Misses: Kelvin 0, Rienzo 1 (S3), Alex 3 total (S2, S3, S5) — but only S2→S3 run consecutively (streak of 2); S4 is ridden, breaking the streak before the separate S5 miss. Slowest actual time per stage → S3 = 1:29:00, S5 = 1:02:00, etc.
 
 Expected:
-- **Penalties:** Rienzo S3 = 1:29:00 + 5:00 = **1:34:00**. Alex S5 = 1:02:00 + 5:00 = **1:07:00** (and S2, S3 likewise).
+- **Penalties:** Rienzo S3 = 1:29:00 + 5:00 = **1:34:00**. Alex S2, S3, S5 likewise each score that stage's slowest + 5:00.
 - **Cumulative GC time:** Kelvin **5:17:00**; Rienzo **5:38:10** (incl. the S3 penalty); Alex **5:42:00**.
-- **Yellow:** Kelvin leads; Rienzo 2nd at **+21:10**. **Alex is DQ** (3 misses) — shown flagged, not eligible.
+- **Yellow:** Kelvin leads; Rienzo 2nd at **+21:10**. **Alex is NOT DQ** — 3 total misses, but never 3 *consecutive* (max streak = 2, S2–S3) — Alex ranks 3rd and is Yellow-eligible.
 - **Green (stages ridden):** Kelvin 5, Rienzo 4, Alex 2 → **Kelvin**.
 - **White** (New=Y pool → Rienzo, eligible with 1 miss): **Rienzo**.
 - **Stage winners** (fastest actual time): all Kelvin in this fixture.
 
-Boundary tests: `mm:ss` vs `h:mm:ss` parsing; a missed stage scoring slowest + 5:00; the 3-miss DQ removing a rider from Yellow but not from Green/Polka; a closed stage with no times excluded from GC.
+Boundary tests: `mm:ss` vs `h:mm:ss` parsing; a missed stage scoring slowest + 5:00; 3 *consecutive* misses (e.g. S2–S3–S4) removing a rider from Yellow but not from Green/Polka; 3 *non-consecutive* misses (as in Alex's case above) NOT triggering DQ; a closed stage with no times excluded from GC.
 
 ## 11. Build plan (milestones)
 1. **M1 — Parse & model:** planner tabs (reference + time columns) + `Riders` tab → typed objects; time parsing; **stage start/close scheduling (§5.5)**; §9.1 validation. Unit-tested.
-2. **M2 — Logic:** fixed distance/elevation, cumulative GC time with missed-stage penalty + 3-miss DQ, gaps, jerseys, stage winners; tests incl. §10.
+2. **M2 — Logic:** fixed distance/elevation, cumulative GC time with missed-stage penalty + 3-consecutive-miss DQ, gaps, jerseys, stage winners; tests incl. §10.
 3. **M3 — Leaderboard + race-day UI:** jersey cards, GC table with gaps, challenge switcher, sync badge, **start countdown + the pen** (MVP).
 4. **M4 — Stats MVP:** progress banner, completion heatmap, per-rider progress bars.
 5. **M5 — Polish & deploy:** responsive; pre-tour/finished/empty states; live + upload modes; static deploy; document organiser + rider workflows.
@@ -196,7 +196,7 @@ Boundary tests: `mm:ss` vs `h:mm:ss` parsing; a missed stage scoring slowest + 5
 
 ## 12. Open decisions (defaults chosen so work can start)
 1. ~~Yellow = time GC?~~ **RESOLVED:** Yellow is the time-based GC; Green stays stages completed; distance is a displayed stat.
-2. ~~GC metric with partial participation~~ **RESOLVED:** GC = cumulative time; a **missed (closed) stage** scores that stage's **slowest actual time + 5:00**; **missing 3+ stages disqualifies** from Yellow/White (still eligible for Green/Polka). A time is the only completion signal — no `done` mark.
+2. ~~GC metric with partial participation~~ **RESOLVED:** GC = cumulative time; a **missed (closed) stage** scores that stage's **slowest actual time + 5:00**; **missing 3+ consecutive stages disqualifies** from Yellow/White (still eligible for Green/Polka). A time is the only completion signal — no `done` mark.
 3. **Stage start time (for the countdown).** Default = a global `DAILY_START_TIME` applied to each stage `Date`, in a configured `TIMEZONE`; optional per-stage `Start` column for exact roll-out times. *Confirm the start time + timezone.*
 4. **When a stage "closes"** (locks in misses / empties the pen). Default = when the next stage starts (last stage or day-before-a-rest-day: end of that day). *Confirm.*
 5. **KOM weighting.** Default = raw summed elevation. Optional = bonus multiplier on highlight/mountain stages. *Confirm.*
@@ -204,7 +204,7 @@ Boundary tests: `mm:ss` vs `h:mm:ss` parsing; a missed stage scoring slowest + 5
 7. **Cross-challenge riders.** Default = one challenge per rider. *Confirm.*
 
 ## 13. Definition of done (MVP)
-- Loads the live sheet (and upload fallback); both challenge boards show correct jersey holders, GC order (cumulative time incl. missed-stage penalties, with 3-miss DQ) and gaps against the §10 fixtures; every rider shown regardless of stages missed.
+- Loads the live sheet (and upload fallback); both challenge boards show correct jersey holders, GC order (cumulative time incl. missed-stage penalties, with 3-consecutive-miss DQ) and gaps against the §10 fixtures; every rider shown regardless of stages missed.
 - Completion heatmap, progress banner, per-rider progress bars render correctly.
 - Race-day panel shows a correct start countdown, and a pen that empties as times arrive; riders still penned at stage close become misses.
 - Sync badge shows freshness; §9.1 issues surface without blocking.

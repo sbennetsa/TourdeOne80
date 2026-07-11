@@ -1,6 +1,6 @@
 /**
  * M2: General Classification logic
- * Cumulative time, missed-stage penalties, 3-miss DQ, gaps, stage ridden count
+ * Cumulative time, missed-stage penalties, 3-consecutive-miss DQ, gaps, stage ridden count
  */
 
 import { Stage, RiderEntry, Rider, GCEntry } from "../types"
@@ -21,7 +21,9 @@ interface RiderStats {
  * Cumulative time over all closed stages:
  *   - Timed stages → rider's time
  *   - Missed (closed stage with no time) → slowest actual time + 5:00
- * DQ if 3+ missed stages
+ * DQ if 3+ CONSECUTIVE missed stages (a streak, not a running total) —
+ * permanent for the rest of the tour once triggered, even if the rider
+ * resumes posting times afterward.
  */
 export function computeRiderGC(
   riderName: string,
@@ -33,6 +35,8 @@ export function computeRiderGC(
 
   let totalTime = 0
   let stagesMissed = 0
+  let currentMissStreak = 0
+  let maxMissStreak = 0
 
   // Stages ridden counts every posted time (including the live stage),
   // while GC time/misses/DQ below are based on closed stages only
@@ -40,15 +44,19 @@ export function computeRiderGC(
     riderTimes.filter(e => e.time_seconds !== undefined).map(e => e.stageNumber)
   ).size
 
-  for (const stageNum of closedStages) {
+  // Stage order matters for streak tracking — sort defensively
+  const sortedClosedStages = [...closedStages].sort((a, b) => a - b)
+
+  for (const stageNum of sortedClosedStages) {
     const entry = riderTimes.find(e => e.stageNumber === stageNum)
     const stage = allStages.find(s => s.number === stageNum)
 
     if (!stage) continue
 
     if (entry?.time_seconds !== undefined) {
-      // Rider completed the stage
+      // Rider completed the stage — streak broken
       totalTime += entry.time_seconds
+      currentMissStreak = 0
     } else {
       // Rider missed a closed stage — penalty basis is the slowest time
       // posted by ANY rider on that stage, not this rider's own entries
@@ -58,10 +66,12 @@ export function computeRiderGC(
         totalTime += slowestTime + CONFIG.missedStagePenalty
       }
       stagesMissed++
+      currentMissStreak++
+      maxMissStreak = Math.max(maxMissStreak, currentMissStreak)
     }
   }
 
-  const isDQ = stagesMissed >= CONFIG.missThreshold
+  const isDQ = maxMissStreak >= CONFIG.missThreshold
   const totalElevation = computeTotalElevation(riderName, riderEntries, allStages)
 
   return {

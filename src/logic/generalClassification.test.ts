@@ -37,11 +37,33 @@ describe("computeRiderGC", () => {
     expect(stats.is_disqualified).toBe(false)
   })
 
-  it("marks rider as DQ with 3+ misses (Alex)", () => {
+  it("does NOT DQ a rider with 3 non-consecutive misses (Alex)", () => {
     const stats = computeRiderGC("Alex", mockEntries, mockStages, closedStages)
-    // Alex misses 3 stages (2, 3, 5) → DQ
-    expect(stats.is_disqualified).toBe(true)
+    // Alex misses S2, S3, S5 — 3 total, but S2-S3 (streak of 2) is broken by
+    // a ridden S4 before the separate S5 miss, so max streak is only 2
     expect(stats.stages_missed).toBe(3)
+    expect(stats.is_disqualified).toBe(false)
+  })
+
+  it("DQs a rider with 3 CONSECUTIVE misses", () => {
+    const entries: RiderEntry[] = [
+      { riderName: "Streaky", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      // stages 2, 3, 4 missed back-to-back (streak of 3)
+    ]
+    const stats = computeRiderGC("Streaky", entries, mockStages, closedStages)
+    expect(stats.stages_missed).toBe(4) // S2, S3, S4, S5 all missed
+    expect(stats.is_disqualified).toBe(true)
+  })
+
+  it("DQ is permanent even after the streak is broken by a later ride", () => {
+    // Misses S2, S3, S4 (streak of 3 → DQ triggered), then rides S5 — still DQ'd
+    const entries: RiderEntry[] = [
+      { riderName: "Streaky", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "Streaky", stageNumber: 5, time_seconds: 1200, is_valid: true },
+    ]
+    const stats = computeRiderGC("Streaky", entries, mockStages, closedStages)
+    expect(stats.stages_missed).toBe(3) // S2, S3, S4
+    expect(stats.is_disqualified).toBe(true)
   })
 
   it("excludes non-closed stages from cumulative time", () => {
@@ -106,7 +128,7 @@ describe("getStageWinner", () => {
 })
 
 describe("buildLeaderboard (§10 fixture integration)", () => {
-  it("builds correct GC order: Kelvin 1st, Rienzo 2nd, Alex DQ", () => {
+  it("builds correct GC order: Kelvin 1st, Rienzo 2nd, Alex 3rd (not DQ — misses not consecutive)", () => {
     const leaderboard = buildLeaderboard(
       mockRiders,
       mockEntries,
@@ -124,7 +146,7 @@ describe("buildLeaderboard (§10 fixture integration)", () => {
     expect(leaderboard[1].is_disqualified).toBe(false)
 
     expect(leaderboard[2].riderName).toBe("Alex")
-    expect(leaderboard[2].is_disqualified).toBe(true)
+    expect(leaderboard[2].is_disqualified).toBe(false)
   })
 
   it("computes correct gap Kelvin → Rienzo (+21:10)", () => {
@@ -164,18 +186,25 @@ describe("buildLeaderboard (§10 fixture integration)", () => {
   })
 
   it("marks DQ riders but includes them on board", () => {
+    // Add a rider with 3 CONSECUTIVE misses (S2-S4) to the fixture
+    const streakyRider = { name: "Streaky", challenge: "20" as const, isNew: false, isCombative: false }
+    const streakyEntries: RiderEntry[] = [
+      { riderName: "Streaky", stageNumber: 1, time_seconds: 1000, is_valid: true },
+      { riderName: "Streaky", stageNumber: 5, time_seconds: 1200, is_valid: true },
+    ]
+
     const leaderboard = buildLeaderboard(
-      mockRiders,
-      mockEntries,
+      [...mockRiders, streakyRider],
+      [...mockEntries, ...streakyEntries],
       mockStages,
       [1, 2, 3, 4, 5],
       "20"
     )
 
-    expect(leaderboard.length).toBe(3) // All 3 riders shown
+    expect(leaderboard.length).toBe(4) // All 4 riders shown
     const dq = leaderboard.find(e => e.is_disqualified)
     expect(dq).toBeDefined()
-    expect(dq?.riderName).toBe("Alex")
+    expect(dq?.riderName).toBe("Streaky")
   })
 
   it("counts stage wins per rider", () => {
